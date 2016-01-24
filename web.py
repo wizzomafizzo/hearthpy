@@ -136,7 +136,7 @@ def is_int(value):
   except ValueError:
     return False
 
-@app.route("/", methods=["GET", "POST"])
+@app.route(config.url_prefix + "/", methods=["GET", "POST"])
 @requires_auth
 def index():
     m = Matches(db)
@@ -225,7 +225,7 @@ def index():
 
     return render_template("hearthpy.html", **args)
 
-@app.route("/remove")
+@app.route(config.url_prefix + "/remove")
 @requires_auth
 def remove_match():
     m = Matches(db)
@@ -242,7 +242,7 @@ def remove_match():
                                  match=match,
                                  removed=removed)
 
-@app.route("/matches")
+@app.route(config.url_prefix + "/matches")
 @requires_auth
 def matches():
     m = Matches(db)
@@ -352,14 +352,14 @@ def matches():
 
     return render_template("matches.html", **args)
 
-@app.route("/matches.json")
+@app.route(config.url_prefix + "/matches.json")
 @requires_auth
 def export_matches():
     m = Matches(db)
     matches = m.all()
     return dumps(matches)
 
-@app.route("/cards")
+@app.route(config.url_prefix + "/cards")
 @requires_auth
 def cards():
     c = Cards(db)
@@ -476,39 +476,39 @@ def cards():
 
     return render_template("cards.html", **args)
 
-@app.route("/add_card/<card_id>")
+@app.route(config.url_prefix + "/add_card/<card_id>")
 @requires_auth
 def add_card(card_id):
     c = Cards(db)
     return str(c.add_owned(card_id))
 
-@app.route("/remove_card/<card_id>")
+@app.route(config.url_prefix + "/remove_card/<card_id>")
 @requires_auth
 def remove_card(card_id):
     c = Cards(db)
     return str(c.remove_owned(card_id))
 
-@app.route("/set_notes/<card_id>/<notes>")
+@app.route(config.url_prefix + "/set_notes/<card_id>/<notes>")
 @requires_auth
 def set_notes(card_id, notes):
     c = Cards(db)
     return str(c.set_notes(card_id, notes))
 
-@app.route("/cards.json")
+@app.route(config.url_prefix + "/cards.json")
 @requires_auth
 def export_cards():
     c = Cards(db)
     cards = c.all_cards()
     return dumps(cards)
 
-@app.route("/collection.json")
+@app.route(config.url_prefix + "/collection.json")
 @requires_auth
 def export_collection():
     c = Cards(db)
     collection = c.all_collection()
     return dumps(collection)
 
-@app.route("/logout")
+@app.route(config.url_prefix + "/logout")
 @requires_auth
 def logout():
     session.pop("username", None)
