@@ -10,6 +10,7 @@ import urllib.request
 import config
 import web
 import database
+from web import app
 
 def get_credentials():
     try:
@@ -116,6 +117,10 @@ def run():
 def show_help():
     print("Commands:")
     print("run, setup, backup, update_cards, import_matches, import_collection")
+
+credentials = get_credentials()
+web.credentials = credentials
+app.secret_key = credentials["secret_key"]
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
