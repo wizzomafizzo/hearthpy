@@ -10,7 +10,7 @@
 	<link href="static/css/bootstrap.min.css" rel="stylesheet">
 	<link href="static/css/bootstrap-theme.min.css" rel="stylesheet">
 	<link href="static/css/jquery-ui.min.css" rel="stylesheet">
-	<link href="static/css/hearthpy.css" rel="stylesheet">
+	<link href="static/css/hearthpy.min.css" rel="stylesheet">
   </head>
   <body>
 	<nav class="navbar navbar-default">
@@ -45,58 +45,12 @@
 	</nav>
 	{% block content %}{% endblock %}
 	<script src="static/js/jquery.min.js"></script>
-	<script src="static/js/jquery-ui.min.js"></script>
 	<script src="static/js/bootstrap.min.js"></script>
 	<script>
-	 function fd(name) {
-		 $("#deck-input").val(name);
-	 }
-	 function ac(card_id) {
-		 $.ajax({
-			 url: "add_card/" + card_id,
-			 dataType: "text",
-			 success: function(x) {
-				 $("#owned-" + card_id).text(x)
-			 }
-		 });
-	 }
-	 function rc(card_id) {
-		 $.ajax({
-			 url: "remove_card/" + card_id,
-			 dataType: "text",
-			 success: function(x) {
-				 $("#owned-" + card_id).text(x)
-			 }
-		 });
-	 }
 	 $(document).ready(function(){
 		 $('[data-toggle="tooltip"]').tooltip();
-		 $(".date-picker").datepicker({
-			 dateFormat: "dd/mm/yy",
-			 showAnim: ""
-		 });
-		 $(".accordion").accordion({
-			 event: "click hoverintent",
-			 animate: false,
-			 heightStyle: "content"
-		 });
-		 $(".card-notes").keypress(function(e){
-			 if (e.which == 13) {
-				 var card_id = $(this).attr("data-card-id");
-				 var notes = $(this).val();
-				 $(this).css("background-color", "#B9DEF0");
-				 $.ajax({
-					 url: "set_notes/" + card_id + "/" + notes,
-					 dataType: "text",
-					 context: this,
-					 success: function(x) {
-						 $(this).css("background-color", "white");
-						 $(this).val(x);
-					 }
-				 });
-			 }
-		 });
 	 });
 	</script>
+	{% block script %}{% endblock %}
   </body>
 </html>

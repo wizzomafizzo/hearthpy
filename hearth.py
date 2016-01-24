@@ -112,7 +112,7 @@ def run():
 
     web.credentials = credentials
     web.app.secret_key = credentials["secret_key"]
-    web.app.run(port=config.port)
+    web.app.run(port=config.port, debug=True)
 
 def show_help():
     print("Commands:")

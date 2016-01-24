@@ -152,3 +152,14 @@
   </div>
 </div>
 {% endblock %}
+{% block script %}
+<script src="static/js/jquery-ui.min.js"></script>
+<script>
+ function fd(name) {
+	 $("#deck-input").val(name);
+ }
+ $(document).ready(function(){
+	 $('[data-toggle="tooltip"]').tooltip();
+ });
+</script>
+{% endblock %}
