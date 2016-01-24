@@ -3,7 +3,6 @@
 db_filename = "hearthpy.db"
 auth_filename = "hearthpy.auth"
 port = 5000
-url_prefix = "/hs"
 match_limit = 16
 front_match_limit = 17
 card_limit = 23
