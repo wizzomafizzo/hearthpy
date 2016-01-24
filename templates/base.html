@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
+	<title>Hearthpy</title>
+	<link rel="shortcut icon" href="static/images/icon.png" type="image/x-icon">
+	<link rel="apple-touch-icon" href="static/images/icon.png">
+	<link href="static/css/bootstrap.min.css" rel="stylesheet">
+	<link href="static/css/bootstrap-theme.min.css" rel="stylesheet">
+	<link href="static/css/jquery-ui.min.css" rel="stylesheet">
+	<link href="static/css/hearthpy.css" rel="stylesheet">
+  </head>
+  <body>
+	<nav class="navbar navbar-default">
+	  <div class="container">
+		<div class="navbar-header">
+		  <button type="button" class="navbar-toggle collapsed"
+				  data-toggle="collapse" data-target=".navbar-collapse">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		  </button>
+		  <a class="navbar-brand" href="./">Hearthpy</a>
+		</div>
+		<div class="navbar-collapse collapse">
+		  <ul class="nav navbar-nav">
+			<li role="presentation" class="hidden-xs">
+			  <a href="matches">Matches</a>
+			</li>
+			<li role="presentation">
+			  <a href="cards" class="hidden-xs">Cards</a>
+			</li>
+			<li role="presentation">
+			  <a href="http://www.hearthpwn.com/decks" target="_blank">Decks</a>
+			</li>
+			<li role="presentation">
+			  <a href="http://www.heartharena.com/" target="_blank">Arena</a>
+			</li>
+		  </ul>
+		</div>
+	  </div>
+	</nav>
+	{% block content %}{% endblock %}
+	<script src="static/js/jquery.min.js"></script>
+	<script src="static/js/jquery-ui.min.js"></script>
+	<script src="static/js/bootstrap.min.js"></script>
+	<script>
+	 function fd(name) {
+		 $("#deck-input").val(name);
+	 }
+	 function ac(card_id) {
+		 $.ajax({
+			 url: "add_card/" + card_id,
+			 dataType: "text",
+			 success: function(x) {
+				 $("#owned-" + card_id).text(x)
+			 }
+		 });
+	 }
+	 function rc(card_id) {
+		 $.ajax({
+			 url: "remove_card/" + card_id,
+			 dataType: "text",
+			 success: function(x) {
+				 $("#owned-" + card_id).text(x)
+			 }
+		 });
+	 }
+	 $(document).ready(function(){
+		 $('[data-toggle="tooltip"]').tooltip();
+		 $(".date-picker").datepicker({
+			 dateFormat: "dd/mm/yy",
+			 showAnim: ""
+		 });
+		 $(".accordion").accordion({
+			 event: "click hoverintent",
+			 animate: false,
+			 heightStyle: "content"
+		 });
+		 $(".card-notes").keypress(function(e){
+			 if (e.which == 13) {
+				 var card_id = $(this).attr("data-card-id");
+				 var notes = $(this).val();
+				 $(this).css("background-color", "#B9DEF0");
+				 $.ajax({
+					 url: "set_notes/" + card_id + "/" + notes,
+					 dataType: "text",
+					 context: this,
+					 success: function(x) {
+						 $(this).css("background-color", "white");
+						 $(this).val(x);
+					 }
+				 });
+			 }
+		 });
+	 });
+	</script>
+  </body>
+</html>

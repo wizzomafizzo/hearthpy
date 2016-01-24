@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <div class="main">
+	<div class="col-md-3">
+	  <div class="alert alert-info results-alert" role="alert">
+		<a href="cards"
+		   class="btn-xs btn-default"
+		   id="filter_reset">
+		  <span class="glyphicon glyphicon-refresh">
+		  </span>
+		</a>
+		<strong>{{ total }}</strong> of <strong>{{ all_cards }}</strong>
+		(<strong>{{ "{0:0.1f}".format(total_ratio) }}%</strong>)
+	  </div>
+	  <nav>
+		<ul class="pager">
+		  <li class="previous{% if not prev_pages_left %} disabled{% endif %}">
+			<a href="{% if prev_pages_left %}cards{{ url_args }}&offset={{ prev_offset }}{% else %}#{% endif %}">
+			  <span class="glyphicon glyphicon-arrow-left"></span>
+			</a>
+		  </li>
+		  <span class="page-numbers">
+			<strong>{{ current_page }}</strong> of <strong>{{ total_pages }}</strong>
+		  </span>
+		  <li class="next{% if not next_pages_left %} disabled{% endif %}">
+			<a href="{% if next_pages_left %}cards{{ url_args }}&offset={{ next_offset }}{% else %}#{% endif %}">
+			  <span class="glyphicon glyphicon-arrow-right"></span>
+			</a>
+		  </li>
+		</ul>
+	  </nav>
+	  <div class="well">
+		<form method="GET">
+		  <div class="form-group">
+			<label for="hero">Hero</label>
+			<select id="hero" class="form-control" name="hero">
+			  {% for x in heroes %}
+			  <option{% if x == hero %} selected{% endif %}>
+				{{ x }}
+			  </option>
+			  {% endfor %}
+			</select>
+		  </div>
+		  <div class="form-group">
+			<label for="name-input">Name</label>
+			<input id="name-input" type="search" class="form-control"
+				   name="name" value="{{ name }}">
+		  </div>
+		  <div class="form-group">
+			<label for="text-input">Text</label>
+			<input id="text-input" type="search" class="form-control"
+				   name="text" value="{{ text }}">
+		  </div>
+		  <div class="row card-stats-input">
+			<div class="col-md-3">
+			  <div class="form-group">
+				<label>Mana</label>
+				<input type="number" class="form-control"
+					   name="mana" value="{{ mana }}">
+			  </div>
+			</div>
+			<div class="col-md-3">
+			  <div class="form-group">
+				<label>Attack</label>
+				<input type="number" class="form-control"
+					   name="attack" value="{{ attack }}">
+			  </div>
+			</div>
+			<div class="col-md-3">
+			  <div class="form-group">
+				<label>Health</label>
+				<input type="number" class="form-control"
+					   name="health" value="{{ health }}">
+			  </div>
+			</div>
+		  </div>
+		  <div class="form-group">
+			<label for="rarity">Rarity</label>
+			<select id="rarity" class="form-control" name="rarity">
+			  {% for x in rarities %}
+			  <option{% if x == rarity %} selected{% endif %}>
+				{{ x }}
+			  </option>
+			  {% endfor %}
+			</select>
+		  </div>
+		  <div class="form-group">
+			<label for="set">Set</label>
+			<select id="set" class="form-control" name="set">
+			  {% for x in card_sets %}
+			  <option{% if x == card_set %} selected{% endif %}>
+				{{ x }}
+			  </option>
+			  {% endfor %}
+			</select>
+		  </div>
+		  <div class="form-group">
+			<label for="mode">Type</label>
+			<select class="form-control" name="type">
+			  {% for x in card_types %}
+			  <option{% if x == card_type %} selected{% endif %}>
+				{{ x }}
+			  </option>
+			  {% endfor %}
+			</select>
+		  </div>
+		  <div class="form-group">
+			<label for="effects">Effects</label>
+			<input id="effects" type="search" class="form-control"
+				   name="effects" value="{{ mechanics }}">
+		  </div>
+		  <div class="form-group">
+			<button type="submit" class="btn btn-default search-button">
+			  <span class="glyphicon glyphicon-search"></span> Search
+			</button>
+		  </div>
+		</form>
+	  </div>
+	  <div class="well collection-overview">
+		<a href="cards?missing=yes"
+		   class="btn btn-default">
+		  <span class="glyphicon glyphicon-star-empty"></span>
+		  Missing Cards
+		</a>
+		<ul class="list-group dust-needed-list">
+		  {% for pack in dust_needed %}
+		  <li class="list-group-item">
+			<strong>{{ pack[0] }}</strong>
+			<span class="right">
+			  <span class="icon-dust" title="Dust Needed"
+					data-toggle="tooltip"></span>{{ pack[1] }}
+			</span>
+		  </li>
+		  {% endfor %}
+		</ul>
+		<div class="buy-pack" title="Buy This Pack" data-toggle="tooltip">
+		  <img src="static/images/pack-{{ buy_pack.lower() }}.png">
+		</div>
+	  </div>
+	</div>
+	<div class="col-md-9">
+	  <div class="well cards-table">
+		{% if total == 0 %}
+		<div class="no-results">No cards found</div>
+		{% else %}
+		<div class="accordion">
+		  {% for card in cards %}
+		  <h3>
+			<a name="{{ card.id }}"></a>
+			<div class="icon-card icon-{{ card.class.lower() }}"
+				 title="{{ card.class.title() }}" data-toggle="tooltip"></div>
+			<span class="icon-rarity icon-{{ card.rarity.lower() }}"
+				  title="{{ card.rarity.title() }}" data-toggle="tooltip"></span>
+			<span class="card-name">{{ card.name }}</span>
+			<span class="right">
+			  {% if card.cost != -1 %}
+			  <span class="card-mana-icon" title="Mana" data-toggle="tooltip">
+			  </span><span class="card-header">{{ card.cost }}</span>
+			  {% endif %}
+			  {% if card.attack != -1 %}
+			  <span class="card-attack-icon" title="Attack" data-toggle="tooltip">
+			  </span><span class="card-header">{{ card.attack }}</span>
+			  {% endif %}
+			  {% if card.health != -1 %}
+			  <span class="card-health-icon" title="Health" data-toggle="tooltip">
+			  </span><span class="card-header">{{ card.health }}</span>
+			  {% endif %}
+			</span>
+		  </h3>
+		  <div class="card-content">
+			<div class="col-md-6">
+			  <ul class="list-group card-info">
+				<li class="list-group-item">
+				  <strong>Owned</strong>
+				  <span class="right">
+					<a href="javascript:void(0)" onclick="rc('{{ card.id }}')"><span class="glyphicon glyphicon-minus"></span></a>
+					<span id="owned-{{ card.id }}">{{ card.owned }}</span>
+					<a href="javascript:void(0)" onclick="ac('{{ card.id }}')"><span class="glyphicon glyphicon-plus"></span></a>
+				  </span>
+				</li>
+				<li class="list-group-item">
+				  <strong>ID</strong><span class="right">
+					{{ card.id }}
+					<a href="{{ card_image_url.format(card.id) }}"
+					   class="card-image-link" target="_blank">
+					  <span class="glyphicon glyphicon-picture"></span>
+					</a>
+				  </span>
+				</li>
+				<li class="list-group-item">
+				  <strong>Set</strong><span class="right">{{ card.set }}</span>
+				</li>
+				<li class="list-group-item">
+				  <strong>Type</strong><span class="right">{{ card.type }}</span>
+				</li>
+				<li class="list-group-item">
+				  <strong>Effects</strong><span class="right">{{ card.mechanics }}</span>
+				</li>
+			  </ul>
+			</div>
+			<div class="col-md-6">
+			  <div class="well card-box">
+				<span class="right glyphicon glyphicon-modal-window" title="Card Text"
+					  data-toggle="tooltip" data-placement="left"></span>
+				{{ card.text|safe }}
+			  </div>
+			  <div class="well card-box">
+				<span class="right glyphicon glyphicon-ice-lolly" title="Flavor Text"
+					  data-toggle="tooltip" data-placement="left"></span>
+				{{ card.flavor|safe }}
+			  </div>
+			  <div class="well card-box">
+				<input type="text" class="form-control card-notes"
+					   placeholder="Notes" data-card-id="{{ card.id }}"
+					   value="{{ card.notes }}">
+			  </div>
+			</div>
+		  </div>
+		  {% endfor %}
+		</div>
+		{% endif %}
+	  </div>
+	</div>
+  </div>
+</div>
+{% endblock %}

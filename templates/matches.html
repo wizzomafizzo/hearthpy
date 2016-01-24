@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <div class="main">
+	<div class="col-md-3">
+	  <div class="alert alert-info results-alert" role="alert">
+		<a href="matches" class="btn-xs btn-default" id="filter_reset">
+		  <span class="glyphicon glyphicon-refresh"></span>
+		</a>
+		<strong>{{ matches_found }}</strong> of
+		<strong>{{ total }}</strong>
+		(<strong>{{ "{0:0.1f}".format(total_ratio) }}%</strong>)<br>
+		<div class="matches-opponents">
+		  <span class="glyphicon glyphicon-stats" title="Winrate" data-toggle="tooltip"></span>
+		  <strong>{{ "{0:0.1f}".format(winrate) }}%</strong>
+		</div>
+		<div class="progress progress-opponent-matches">
+		  {% for x in opponent_ratios %}
+		  <div class="progress-bar progress-{{ x[0].lower() }}"
+			   style="width: {{ x[1] }}%"
+			   title="{{ x[0] }} ({{ opponent_stats[x[0]]['wins'] }}/{{ opponent_stats[x[0]]['losses'] }}/{{ opponent_stats[x[0]]['total'] }})"
+			   data-toggle="tooltip" data-placement="bottom">
+		  </div>
+		  {% endfor %}
+		</div>
+	  </div>
+	  <nav>
+		<ul class="pager">
+		  <li class="previous{% if not prev_pages_left %} disabled{% endif %}">
+			<a href="{% if prev_pages_left %}matches{{ url_args }}&offset={{ prev_offset }}{% else %}#{% endif %}">
+			  <span class="glyphicon glyphicon-arrow-left"></span>
+			</a>
+		  </li>
+		  <span class="page-numbers">
+			<strong>{{ current_page }}</strong> of <strong>{{ total_pages }}</strong>
+		  </span>
+		  <li class="next{% if not next_pages_left %} disabled{% endif %}">
+			<a href="{% if next_pages_left %}matches{{ url_args }}&offset={{ next_offset }}{% else %}#{% endif %}">
+			  <span class="glyphicon glyphicon-arrow-right"></span>
+			</a>
+		  </li>
+		</ul>
+	  </nav>
+	  <div class="well">
+		<form method="GET">
+		  <div class="form-group">
+			<label>Range</label>
+			<input type="search" class="form-control date-picker"
+				   name="from" placeholder="From" value="{{ from_date }}">
+			<input type="search" class="form-control date-picker"
+				   name="to" placeholder="To" value="{{ to_date }}">
+		  </div>
+		  <div class="form-group">
+			<label for="mode">Mode</label>
+			<select class="form-control" name="mode">
+			  {% for x in modes %}
+			  <option{% if x == mode %} selected{% endif %}>{{ x }}</option>
+			  {% endfor %}
+			</select>
+		  </div>
+		  <div class="form-group">
+			<label for="deck">Deck</label>
+			<input id="deck-input" type="search" class="form-control"
+				   name="deck" value="{{ deck }}">
+		  </div>
+		  <div class="form-group">
+			<label for="opponent">Opponent</label>
+			<select class="form-control" name="opponent">
+			  {% for x in opponents %}
+			  <option{% if x == opponent %} selected{% endif %}>{{ x }}</option>
+			  {% endfor %}
+			</select>
+		  </div>
+		  <div class="form-group">
+			<label for="notes">Notes</label>
+			<input type="search" class="form-control"
+				   name="notes" value="{{ notes }}">
+		  </div>
+		  <div class="form-group">
+			<label for="outome">Outcome</label><br>
+			<label class="radio-inline">
+			  <input type="radio" name="outcome" value="all" checked> All
+			</label>
+			<label class="radio-inline">
+			  <input type="radio" name="outcome" value="win"{% if outcome == 'win' %} checked{% endif %}> Wins
+			</label>
+			<label class="radio-inline">
+			  <input type="radio" name="outcome" value="lose"{% if outcome == 'lose' %} checked{% endif %}> Losses
+			</label>
+		  </div>
+		  <div class="form-group">
+			<button type="submit" class="btn btn-default search-button">
+			  <span class="glyphicon glyphicon-search"></span> Search
+			</button>
+		  </div>
+		</form>
+	  </div>
+	</div>
+	<div class="col-md-9">
+	  <div class="well filter-matches-table">
+		{% if total == 0 %}
+		<div class="no-results no-results-matches">No matches found</div>
+		{% else %}
+		<table class="table table-condensed">
+		  <thead>
+			<tr>
+			  <th></th>
+			  <th><span class="glyphicon glyphicon-calendar" title="Date"
+						data-toggle="tooltip"></span></th>
+			  <th><span class="glyphicon glyphicon-star" title="Mode"
+						data-toggle="tooltip"></span></th>
+			  <th><span class="glyphicon glyphicon-align-justify" title="Deck"
+						data-toggle="tooltip"></span></th>
+			  <th><span class="glyphicon glyphicon-user" title="Against"
+						data-toggle="tooltip"></span></th>
+			  <th><span class="glyphicon glyphicon-pencil" title="Notes"
+						data-toggle="tooltip"></span></th>
+			  <th><span class="glyphicon glyphicon-flag" title="Outcome"
+						data-toggle="tooltip"></span></th>
+			</tr>
+		  </thead>
+		  <tbody>
+			{% for match in matches %}
+			<tr class="matches-row">
+			  <td><span><strong>#{{ match.id }}</strong></span></td>
+			  <td class="filter-heroes">
+				<span>{{ match.date.strftime('%d/%m/%y %H:%M:%S') }}</span>
+			  </td>
+			  <td class="filter-heroes">
+				<div class="rank ranks-{{ match.mode_icon }}"></div>
+				<span>{{ match.mode }}</span>
+			  </td>
+			  <td onclick="fd('{{ match.deck }}')" class="filter-heroes">
+				<div class="icon-hero icon-{{ match.hero_icon }}"></div>
+				<span>{{ match.deck }}</span>
+			  </td>
+			  <td class="filter-heroes">
+				<div class="icon-hero icon-{{ match.opponent.lower() }}"></div>
+				<span>{{ match.opponent }}</span>
+			  </td>
+			  <td class="match-notes"><span>{{ match.notes }}</span></td>
+			  <td><span class="label label-{{ match.label }}">
+				{% if match.outcome %}WIN{% else %}LOSE{% endif %}
+			  </span></td>
+			</tr>
+			{% endfor %}
+		  </tbody>
+		</table>
+		{% endif %}
+	  </div>
+	</div>
+  </div>
+</div>
+{% endblock %}

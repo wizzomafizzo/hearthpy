@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <div class="main">
+	<div class="row">
+	  <div class="col-md-12">
+		{% if removed %}
+		<div class="alert alert-success remove-alert" role="alert">
+		  Removed match <strong>#{{ match_id }}</strong>
+		  <a href="./?mode={{ match.mode }}&deck={{ match.deck }}&opponent={{ match.opponent }}&notes={{ match.notes }}"
+			 class="btn-xs btn-default"
+			 id="filter_reset">
+			<span class="glyphicon glyphicon-ok">
+			</span>
+		  </a>
+		</div>
+		{% else %}
+		<div class="alert alert-danger remove-alert" role="alert">
+		  Match <strong>#{{ match_id }}</strong> does not exist
+		</div>
+		{% endif %}
+	  </div>
+	</div>
+  </div>
+</div>
+{% endblock %}

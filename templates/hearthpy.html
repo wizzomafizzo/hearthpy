@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <div class="main">
+	<div class="row">
+	  <div class="col-md-4">
+		<div class="col-md-12">
+		  <div class="well input-match">
+			<form method="POST">
+			  <div class="form-group-match">
+				<select class="form-control" name="mode">
+				  {% for mode in modes %}
+				  <option{% if active_mode == mode %} selected{% endif %}>
+					{{ mode }}
+				  </option>
+				  {% endfor %}
+				</select>
+				<input type="text"
+					   id="deck-name-input"
+					   class="form-control"
+					   placeholder="Deck"
+					   name="deck"
+					   autocorrect="off"
+					   value="{{ active_deck }}">
+				<div class="versus">VS</div>
+				<select class="form-control" name="opponent">
+				  {% for hero in heroes %}
+				  <option{% if active_opponent == hero %} selected{% endif %}>
+					{{ hero }}
+				  </option>
+				  {% endfor %}
+				</select>
+				<input type="text" class="form-control"
+					   placeholder="Notes" name="notes"
+					   autocomplete="off"
+					   value="{{ active_notes }}">
+				<div class="btn-group">
+				  <button class="btn btn-danger outcome"
+						  name="outcome"
+						  value="lose">
+					<span class="glyphicon glyphicon-remove"></span>
+					Lose
+				  </button>
+				  <button class="btn btn-success outcome"
+						  name="outcome"
+						  value="win">
+					<span class="glyphicon glyphicon-ok"></span>
+					Win
+				  </button>
+				</div>
+			  </div>
+			</form>
+		  </div>
+		</div>
+		{% if last_added %}
+		<div class="col-md-12">
+		  <div class="alert alert-success" role="alert">
+			Added match <strong>#{{ last_added }}</strong>
+			{% if not deck_exists %}
+			<span class="label label-info">New Deck</span>
+			{% endif %}
+			<a href="remove?id={{ last_added }}" class="btn-xs btn-default"
+			   id="filter_reset">
+			  <span class="glyphicon glyphicon-floppy-remove"
+			  		title="Undo" data-toggle="tooltip">
+			  </span>
+			</a>
+		  </div>
+		</div>
+		{% endif %}
+		{% if submit_error %}
+		<div class="col-md-12">
+		  <div class="alert alert-danger" role="alert">
+			<strong>{{ submit_error }}</strong>
+		  </div>
+		</div>
+		{% endif %}
+		<div class="col-md-12">
+		  <div class="well">
+			{% if total_decks == 0 %}
+			<div class="no-results no-results-matches">No decks found</div>
+			{% else %}
+			<table class="table table-condensed">
+			  <thead>
+				<tr>
+				  <th><span class="glyphicon glyphicon-align-justify"
+							title="Deck" data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-ok" title="Wins"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-remove" title="Losses"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-flag" title="Total"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-stats" title="Winrate"
+							data-toggle="tooltip"></span></th>
+				</tr>
+			  </thead>
+			  <tbody>
+				{% for deck in deck_stats %}
+				<tr class="decks-row">
+				  <td class="deck-name">
+					<div class="icon-hero icon-{{ deck.hero_icon }}"></div>
+					<a href="./?deck={{ deck.deck|urlencode }}">
+					  {{ deck.deck }}
+					</a>
+				  </td>
+				  <td><span>{{ deck.wins }}</span></td>
+				  <td><span>{{ deck.losses }}</span></td>
+				  <td><span>{{ deck.total }}</span></td>
+				  <td><span class="label label-{{ deck.label }}">
+					{{ "{0:0.1f}".format(deck.winrate) }}%
+				  </span></td>
+				</tr>
+				{% endfor %}
+			  </tbody>
+			</table>
+			{% endif %}
+		  </div>
+		</div>
+	  </div>
+	  <div class="col-md-4">
+		<div class="col-md-12">
+		  <div class="well stats season-stats">
+			<table class="table table-condensed">
+			  <thead>
+				<tr>
+				  <th><span class="glyphicon glyphicon-calendar" title="Date Range"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-ok" title="Wins"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-remove" title="Losses"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-flag" title="Total"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-stats" title="Winrate"
+							data-toggle="tooltip"></span></th>
+				</tr>
+			  </thead>
+			  <tbody>
+				<tr>
+				  <td class="stats-range">Season</td>
+				  <td>{{ season_stats.wins }}</td>
+				  <td>{{ season_stats.losses }}</td>
+				  <td>{{ season_stats.total }}</td>
+				  <td><span class="label label-{{ season_stats.label }}">
+					{{ "{0:0.1f}".format(season_stats.winrate) }}%
+				  </span></td>
+				</tr>
+			  </tbody>
+			</table>
+			<ul class="list-group">
+			  <li class="list-group-item">
+				<strong>Current Rank</strong>
+				<span class="right">
+				  {{ season_rank.mode }}
+				  <div class="ranks-{{ season_rank.mode_icon }}"></div>
+				</span>
+			  </li>
+			</ul>
+		  </div>
+		</div>
+		{% if active_deck != "" %}
+		<div class="col-md-12">
+		  <div class="alert alert-info" role="alert">
+			<strong>{{ active_deck }}</strong>
+			<a href="." class="btn-xs btn-default"
+			   id="filter_reset">
+			  <span class="glyphicon glyphicon-refresh">
+			  </span>
+			</a>
+		  </div>
+		</div>
+		{% endif %}
+		<div class="col-md-12">
+		  <div class="well range-stats">
+			<table class="table table-condensed">
+			  <thead>
+				<tr>
+				  <th><span class="glyphicon glyphicon-calendar" title="Date Range"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-ok" title="Wins"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-remove" title="Losses"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-flag" title="Total"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-stats" title="Winrate"
+							data-toggle="tooltip"></span></th>
+				</tr>
+			  </thead>
+			  <tbody>
+				<tr>
+				  <td class="stats-range">Day</td>
+				  <td>{{ overall_stats[0].wins }}</td>
+				  <td>{{ overall_stats[0].losses }}</td>
+				  <td>{{ overall_stats[0].total }}</td>
+				  <td><span class="label label-{{ overall_stats[0].label }}">
+					{{ "{0:0.1f}".format(overall_stats[0].winrate) }}%
+				  </span></td>
+				</tr>
+				<tr>
+				  <td class="stats-range">Week</td>
+				  <td>{{ overall_stats[1].wins }}</td>
+				  <td>{{ overall_stats[1].losses }}</td>
+				  <td>{{ overall_stats[1].total }}</td>
+				  <td><span class="label label-{{ overall_stats[1].label }}">
+					{{ "{0:0.1f}".format(overall_stats[1].winrate) }}%
+				  </span></td>
+				</tr>
+				<tr>
+				  <td class="stats-range">Month</td>
+				  <td>{{ overall_stats[2].wins }}</td>
+				  <td>{{ overall_stats[2].losses }}</td>
+				  <td>{{ overall_stats[2].total }}</td>
+				  <td><span class="label label-{{ overall_stats[2].label }}">
+					{{ "{0:0.1f}".format(overall_stats[2].winrate) }}%
+				  </span></td>
+				</tr>
+				<tr>
+				  <td class="stats-range">All</td>
+				  <td>{{ overall_stats[3].wins }}</td>
+				  <td>{{ overall_stats[3].losses }}</td>
+				  <td>{{ overall_stats[3].total }}</td>
+				  <td><span class="label label-{{ overall_stats[3].label }}">
+					{{ "{0:0.1f}".format(overall_stats[3].winrate) }}%
+				  </span></td>
+				</tr>
+			  </tbody>
+			</table>
+		  </div>
+		</div>
+		<div class="col-md-12">
+		  <div class="well opponents-stats">
+			<table class="table table-condensed">
+			  <thead>
+				<tr>
+				  <th><span class="glyphicon glyphicon-user" title="Opponents This Week"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-ok" title="Wins"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-remove" title="Losses"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-flag" title="Total"
+							data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-stats" title="Winrate"
+							data-toggle="tooltip"></span></th>
+				</tr>
+			  </thead>
+			  <tbody>
+				{% for opponent in opponent_stats %}
+				<tr class="opponents-row">
+				  <td class="stats-range">
+					<div class="icon-hero icon-{{ opponent.opponent.lower() }}"></div>
+					<span>{{ opponent.opponent }}</span>
+				  </td>
+				  <td><span>{{ opponent.wins }}</span></td>
+				  <td><span>{{ opponent.losses }}</span></td>
+				  <td><span>{{ opponent.total}}</span></td>
+				  <td><span class="label label-{{ opponent.label }}">
+					{{ "{0:0.1f}".format(opponent.winrate) }}%
+				  </span></td>
+				</tr>
+				{% endfor %}
+			  </tbody>
+			</table>
+			<div class="progress progress-opponent">
+			  {% for x in opponent_ratios %}
+			  <div class="progress-bar progress-{{ x[0].lower() }}"
+				   style="width: {{ x[1] }}%"
+				   title="{{ x[0] }}" data-toggle="tooltip">
+			  </div>
+			  {% endfor %}
+			</div>
+		  </div>
+		</div>
+	  </div>
+	  <div class="col-md-4">
+		<div class="col-md-12">
+		  <div class="well recent-matches">
+			{% if total_matches == 0 %}
+			<div class="no-results no-results-matches">No matches found</div>
+			{% else %}
+			<table class="table table-condensed">
+			  <thead>
+				<tr>
+				  <th><span class="glyphicon glyphicon-align-justify"
+							title="Deck" data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-star"
+							title="Mode" data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-user"
+							title="Opponent" data-toggle="tooltip"></span></th>
+				  <th><span class="glyphicon glyphicon-flag"
+							title="Outcome" data-toggle="tooltip"></span></th>
+				</tr>
+			  </thead>
+			  <tbody>
+				{% for match in matches %}
+				<tr class="matches-row">
+				  <td class="deck-name">
+					<div class="icon-hero icon-{{ match.hero_icon }}"></div>
+					<a href="./?deck={{ match.deck|urlencode }}"
+					   title="#{{ match.id }} - {{ match.date.strftime('%d/%m %H:%M') }}"
+					   data-toggle="tooltip">
+					  {{ match.deck }}
+					</a>
+				  </td>
+				  <td>
+					<div title="{{ match.mode }}"
+						 data-toggle="tooltip">
+					  <div class="rank ranks-{{ match.mode_icon }}"></div>
+					</div>
+				  </td>
+				  <td>
+					<div class="icon-hero icon-{{ match.opponent.lower() }}"
+						 title="{{ match.opponent }}"
+						 data-toggle="tooltip">
+					</div>
+				  </td>
+				  <td>
+					<span title="{{ match.notes }}"
+						  class="label label-{{ match.label }}"
+						  data-toggle="tooltip">
+					  {% if match.outcome %}WIN{% else %}LOSE{% endif %}{% if match.notes != "" %}...{% endif %}
+					</span>
+				  </td>
+				</tr>
+				{% endfor %}
+			  </tbody>
+			</table>
+			{% endif %}
+		  </div>
+		</div>
+	  </div>
+	</div>
+  </div>
+</div>
+{% endblock %}
