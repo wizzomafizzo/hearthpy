@@ -111,8 +111,7 @@ def run():
 
     web.credentials = credentials
     web.app.secret_key = credentials["secret_key"]
-    # TODO: remove debug stuff
-    web.app.run(port=config.port, debug=True, host="0.0.0.0")
+    web.app.run(port=config.port)
 
 def show_help():
     print("Commands:")
