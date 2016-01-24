@@ -668,8 +668,9 @@ class Cards():
         cards = [self.read(x) for x in cards]
         missing = []
         for card in cards:
-            if card["rarity"] != "LEGENDARY":
-                missing.append(card)
+            if card["rarity"] == "LEGENDARY" and card["owned"] == 1:
+                continue
+            missing.append(card)
         return missing
 
     def dust_needed(self):
