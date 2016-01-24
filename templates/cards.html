@@ -13,23 +13,6 @@
 		<strong>{{ total }}</strong> of <strong>{{ all_cards }}</strong>
 		(<strong>{{ "{0:0.1f}".format(total_ratio) }}%</strong>)
 	  </div>
-	  <nav>
-		<ul class="pager">
-		  <li class="previous{% if not prev_pages_left %} disabled{% endif %}">
-			<a href="{% if prev_pages_left %}cards{{ url_args }}&offset={{ prev_offset }}{% else %}#{% endif %}">
-			  <span class="glyphicon glyphicon-arrow-left"></span>
-			</a>
-		  </li>
-		  <span class="page-numbers">
-			<strong>{{ current_page }}</strong> of <strong>{{ total_pages }}</strong>
-		  </span>
-		  <li class="next{% if not next_pages_left %} disabled{% endif %}">
-			<a href="{% if next_pages_left %}cards{{ url_args }}&offset={{ next_offset }}{% else %}#{% endif %}">
-			  <span class="glyphicon glyphicon-arrow-right"></span>
-			</a>
-		  </li>
-		</ul>
-	  </nav>
 	  <div class="well">
 		<form method="GET">
 		  <div class="form-group">
@@ -221,6 +204,23 @@
 		</div>
 		{% endif %}
 	  </div>
+	  <nav>
+		<ul class="pager">
+		  <li class="previous{% if not prev_pages_left %} disabled{% endif %}">
+			<a href="{% if prev_pages_left %}cards{{ url_args }}&offset={{ prev_offset }}{% else %}#{% endif %}">
+			  <span class="glyphicon glyphicon-arrow-left"></span>
+			</a>
+		  </li>
+		  <span class="page-numbers">
+			<strong>{{ current_page }}</strong> of <strong>{{ total_pages }}</strong>
+		  </span>
+		  <li class="next{% if not next_pages_left %} disabled{% endif %}">
+			<a href="{% if next_pages_left %}cards{{ url_args }}&offset={{ next_offset }}{% else %}#{% endif %}">
+			  <span class="glyphicon glyphicon-arrow-right"></span>
+			</a>
+		  </li>
+		</ul>
+	  </nav>
 	</div>
   </div>
 </div>

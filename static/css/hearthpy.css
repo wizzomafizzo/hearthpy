@@ -180,8 +180,7 @@ table td {
 }
 
 .filter-matches-table {
-	margin-left: 1em;
-	margin-right: 1em;
+	margin-bottom: 0.5em;
 }
 
 .filter-heroes {
@@ -234,6 +233,12 @@ table td {
 
 .cards-table {
 	padding-bottom: 6px;
+	margin-bottom: 0.5em;
+}
+
+.pager {
+	margin: 0.1em;
+	margin-bottom: 1em;
 }
 
 .card-mana-icon {
@@ -339,17 +344,8 @@ table td {
 	margin-bottom: 6px;
 }
 
-.pager {
-	margin-bottom: 0.5em;
-	margin-top: 0.5em;
-}
-
 .matches-opponents {
 	margin-top: 0.5em;
-}
-
-.results-alert {
-	margin-bottom: 0;
 }
 
 .page-numbers {
