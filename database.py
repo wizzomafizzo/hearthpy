@@ -659,10 +659,15 @@ class Cards():
         return [x[0] for x in c.fetchall()]
 
     def missing(self):
-        own_none = self.search(owned=0)
-        own_one = self.search(owned=1)
-        missing = own_none
-        for card in own_one:
+        q = ("select * from cards left join collection "
+             "on cards.card_id = collection.card_id where "
+             "owned < 2 order by class, cost, name")
+        c = self.db.cursor()
+        c.execute(q)
+        cards = c.fetchall()
+        cards = [self.read(x) for x in cards]
+        missing = []
+        for card in cards:
             if card["rarity"] != "LEGENDARY":
                 missing.append(card)
         return missing
