@@ -3,7 +3,7 @@
 db_filename = "hearthpy.db"
 auth_filename = "hearthpy.auth"
 port = 5000
-match_limit = 16
+match_limit = 15
 front_match_limit = 17
 card_limit = 22
 winrate_tiers = [50, 60] # %
