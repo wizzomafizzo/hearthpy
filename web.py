@@ -414,8 +414,10 @@ def cards():
     if mechanics != "":
         search["mechanics"] = mechanics
 
+    missing_cards = c.missing()
+
     if missing != "":
-        cards = c.missing()
+        cards = missing_cards[0]
     else:
         cards = c.search(**search)
     total = len(cards)
@@ -471,6 +473,7 @@ def cards():
         "card_image_url": config.card_image_url,
         "dust_needed": packs,
         "buy_pack": buy_pack,
+        "total_missing": missing_cards[1],
         "total": total
     }
 

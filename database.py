@@ -667,14 +667,16 @@ class Cards():
         cards = c.fetchall()
         cards = [self.read(x) for x in cards]
         missing = []
+        total = 0
         for card in cards:
             if card["rarity"] == "LEGENDARY" and card["owned"] == 1:
                 continue
+            total += 2 - card["owned"]
             missing.append(card)
-        return missing
+        return (missing, total)
 
     def dust_needed(self):
-        missing_cards = self.missing()
+        missing_cards = self.missing()[0]
         packs = config.card_packs
         craft_cost = config.craft_cost
         dust_needed = {}

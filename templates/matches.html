@@ -18,7 +18,7 @@
 		  {% for x in opponent_ratios %}
 		  <div class="progress-bar progress-{{ x[0].lower() }}"
 			   style="width: {{ x[1] }}%"
-			   title="{{ x[0] }} ({{ opponent_stats[x[0]]['wins'] }}/{{ opponent_stats[x[0]]['losses'] }}/{{ opponent_stats[x[0]]['total'] }})"
+			   title="{{ x[0] }} [{{ opponent_stats[x[0]]['wins'] }}/{{ opponent_stats[x[0]]['losses'] }}/{{ opponent_stats[x[0]]['total'] }}]"
 			   data-toggle="tooltip" data-placement="bottom">
 		  </div>
 		  {% endfor %}
