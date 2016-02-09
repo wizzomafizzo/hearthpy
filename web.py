@@ -7,6 +7,7 @@ from flask import Flask
 from flask import Response
 from flask import request
 from flask import render_template
+
 from flask import session
 from flask.json import dumps
 
@@ -18,6 +19,7 @@ from database import Matches
 from database import a_month_ago
 from database import a_week_ago
 from database import a_day_ago
+from database import start_of_month
 from database import read_date
 from database import end_of_day
 from database import winrate
@@ -189,7 +191,7 @@ def index():
                m.search(limit=config.front_match_limit, deck=deck)]
     deck_stats = [hero_icon(x) for x in
                   m.deck_stats(a_month_ago())]
-    season_stats = m.stats(m.search(a_month_ago(),
+    season_stats = m.stats(m.search(start_of_month(),
                                     mode="Ranked"))
     overall_stats = [m.stats(m.search(a_day_ago(),
                                       deck=deck, limit=None)),

@@ -160,6 +160,10 @@
  }
  $(document).ready(function(){
 	 $('[data-toggle="tooltip"]').tooltip();
+	 $(".date-picker").datepicker({
+		 dateFormat: "dd/mm/yy",
+		 showAnim: ""
+	 });
  });
 </script>
 {% endblock %}
