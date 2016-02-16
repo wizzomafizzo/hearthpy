@@ -3,8 +3,8 @@
 db_filename = "hearthpy.db"
 auth_filename = "hearthpy.auth"
 port = 5000
-match_limit = 15
-front_match_limit = 17
+match_limit = 21
+front_match_limit = 21
 card_limit = 22
 winrate_tiers = [50, 60] # %
 deck_template = "^(Dd|Hr|Me|Pn|Pt|Re|Sn|Wk|Wr) .+ \d+\.\d+$"
