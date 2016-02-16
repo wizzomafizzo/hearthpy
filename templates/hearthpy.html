@@ -6,7 +6,7 @@
 	  <div class="col-md-4">
 		<div class="col-md-12">
 		  <div class="well input-match">
-			<form method="POST">
+			<form method="post" action="./{% if active_deck != '' %}?deck={{ active_deck|urlencode }}{% endif %}">
 			  <div class="form-group-match">
 				<select class="form-control" name="mode">
 				  {% for mode in modes %}
