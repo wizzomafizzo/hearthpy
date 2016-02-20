@@ -312,7 +312,7 @@
 				  <td class="deck-name">
 					<div class="icon-hero icon-{{ match.hero_icon }}"></div>
 					<a href="./?deck={{ match.deck|urlencode }}"
-					   title="#{{ match.id }} - {{ match.date.strftime('%d/%m %H:%M') }}"
+					   title="{{ match.date.strftime('%d/%m %H:%M') }}"
 					   data-toggle="tooltip">
 					  {{ match.deck }}
 					</a>
