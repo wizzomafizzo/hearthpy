@@ -6,7 +6,7 @@
 	  <div class="col-md-4">
 		<div class="col-md-12">
 		  <div class="well input-match">
-			<form method="post" action="./{% if active_deck != '' %}?deck={{ active_deck|urlencode }}{% endif %}">
+			<form method="post" action="./?deck={{ active_deck|urlencode }}">
 			  <div class="form-group-match">
 				<select class="form-control" name="mode">
 				  {% for mode in modes %}
@@ -231,6 +231,19 @@
 		</div>
 		<div class="col-md-12">
 		  <div class="well opponents-stats">
+			<div class="opponents-range">
+			  <ul class="nav nav-tabs nav-justified">
+				<li role="presentation"{% if active_seen == 'day' %} class="active"{% endif %}>
+				  <a href="./?deck={{ active_deck|urlencode }}&seen=day">Day</a>
+				</li>
+				<li role="presentation"{% if active_seen == 'week' %} class="active"{% endif %}>
+				  <a href="./?deck={{ active_deck|urlencode }}&seen=week">Week</a>
+				</li>
+				<li role="presentation"{% if active_seen == 'month' %} class="active"{% endif %}>
+				  <a href="./?deck={{ active_deck|urlencode }}&seen=month">Month</a>
+				</li>
+			  </ul>
+			</div>
 			<table class="table table-condensed">
 			  <thead>
 				<tr>

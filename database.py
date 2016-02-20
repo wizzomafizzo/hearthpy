@@ -1,9 +1,10 @@
 # hearthpy database
 
-import datetime
 import time
 import json
 import sqlite3
+from datetime import datetime
+from datetime import timedelta
 
 import config
 
@@ -12,41 +13,41 @@ db = sqlite3.connect(config.db_filename,
                      check_same_thread=False)
 
 def now():
-    return datetime.datetime.now()
+    return datetime.now()
 
 def start_of_today():
-    today = datetime.datetime.now()
-    return datetime.datetime(today.year, today.month, today.day)
+    today = datetime.now()
+    return datetime(today.year, today.month, today.day)
 
 def end_of_today():
-    today = datetime.datetime.now()
-    return datetime.datetime(today.year, today.month, today.day, 23, 59, 59)
+    today = datetime.now()
+    return datetime(today.year, today.month, today.day, 23, 59, 59)
 
 def start_of_month():
-    today = datetime.datetime.now()
-    return datetime.datetime(today.year, today.month, 1)
+    today = datetime.now()
+    return datetime(today.year, today.month, 1)
 
 def a_day_ago():
-    today = datetime.datetime.now()
-    return today - datetime.timedelta(1)
+    today = datetime.now()
+    return today - timedelta(1)
 
 def a_week_ago():
-    today = datetime.datetime.now()
-    return today - datetime.timedelta(7)
+    today = datetime.now()
+    return today - timedelta(7)
 
 def a_month_ago():
-    today = datetime.datetime.now()
-    return today - datetime.timedelta(31)
+    today = datetime.now()
+    return today - timedelta(31)
 
 def decks_shown_date():
-    today = datetime.datetime.now()
-    return today - datetime.timedelta(config.decks_shown)
+    today = datetime.now()
+    return today - timedelta(config.decks_shown)
 
 def read_date(date):
-    return datetime.datetime(*time.strptime(date, "%d/%m/%Y")[0:6])
+    return datetime(*time.strptime(date, "%d/%m/%Y")[0:6])
 
 def end_of_day(date):
-    return date + datetime.timedelta(hours=23, minutes=59)
+    return date + timedelta(hours=23, minutes=59)
 
 def winrate(total, wins):
     if wins == 0 or total == 0:
@@ -63,7 +64,7 @@ def import_old_matches(db, export_filename):
     c = db.cursor()
     total = 0
     for x in matches:
-        date = datetime.datetime.fromtimestamp(x[1] - ntp_delta)
+        date = datetime.fromtimestamp(x[1] - ntp_delta)
         c.execute(q, (date, x[2], x[3], x[4], x[5], x[6]))
         total += 1
     db.commit()
@@ -98,7 +99,7 @@ class Matches():
 
         q = "insert into matches values (?, ? ,?, ?, ?, ?)"
         c = self.db.cursor()
-        c.execute(q, (datetime.datetime.now(),
+        c.execute(q, (datetime.now(),
                       mode,
                       deck,
                       opponent,
@@ -155,8 +156,19 @@ class Matches():
         c = self.db.cursor()
         total = 0
         for match in matches:
-            match["date"] = datetime.datetime.strptime(match["date"],
-                                                       "%Y-%m-%d %H:%M:%S")
+            if type(match) is list:
+                match = {
+                    "date": datetime.strptime(match[1],
+                                              "%a, %d %b %Y %H:%M:%S %Z"),
+                    "mode": match[2],
+                    "deck": match[3],
+                    "opponent": match[4],
+                    "notes": match[5],
+                    "outcome": match[6]
+                }
+            else:
+                match["date"] = datetime.strptime(match["date"],
+                                                  "%Y-%m-%d %H:%M:%S")
             c.execute(q, (match["date"], match["mode"], match["deck"],
                           match["opponent"], match["notes"], match["outcome"]))
             total += 1
@@ -171,14 +183,14 @@ class Matches():
 
         # from_date
         if from_date is None:
-            from_date = datetime.datetime.min
+            from_date = datetime.min
         else:
-            assert type(from_date) is datetime.datetime
+            assert type(from_date) is datetime
         # to_date
         if to_date is None:
-            to_date = datetime.datetime.now()
+            to_date = datetime.now()
         else:
-            assert type(to_date) is datetime.datetime
+            assert type(to_date) is datetime
         # deck
         if deck is None:
             deck = "%"
@@ -230,9 +242,9 @@ class Matches():
         q = ("select distinct deck from matches "
              "where date > ? order by deck desc")
         if from_date is None:
-            from_date = datetime.datetime.min
+            from_date = datetime.min
         else:
-            assert type(from_date) is datetime.datetime
+            assert type(from_date) is datetime
         c = self.db.cursor()
         c.execute(q, (from_date,))
         return [x[0] for x in c.fetchall()]
@@ -247,7 +259,7 @@ class Matches():
         q = ("select count(*) from matches "
              "where date between ? and ?")
         if from_date is None:
-            from_date = datetime.datetime.min
+            from_date = datetime.min
         if to_date is None:
             to_date = now()
         c = self.db.cursor()
@@ -291,7 +303,7 @@ class Matches():
         end = end_of_today()
         daily = []
         for x in range(days):
-            delta = datetime.timedelta(x)
+            delta = timedelta(x)
             matches = self.search(start - delta, end - delta)
             stats = self.stats(matches)
             stats["date"] = start - delta

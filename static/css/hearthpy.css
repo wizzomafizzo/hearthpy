@@ -373,6 +373,16 @@ table td {
 	padding-bottom: 0.5em;
 }
 
+.opponents-range {
+	margin-bottom: 0.2em;
+}
+
+.opponents-range ul li a {
+	padding-top: 0.2em;
+	padding-bottom: 0.2em;
+	font-weight: bold;
+}
+
 .icon-dust {
     background-image: url("../images/dust.png");
     background-repeat: no-repeat;

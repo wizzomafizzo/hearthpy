@@ -178,6 +178,7 @@ def index():
     active_mode = (form_mode or request.args.get("mode", ""))
     active_deck = (form_deck or request.args.get("deck", ""))
     active_opponent = (form_opponent or request.args.get("opponent", ""))
+    seen_range = request.args.get("seen", "")
 
     if active_mode == "":
         active_mode = m.last_mode()
@@ -186,6 +187,9 @@ def index():
         deck = active_deck
     else:
         deck = None
+
+    if seen_range == "":
+        seen_range = "week"
 
     matches = [mode_icon(hero_icon(x)) for x in
                m.search(limit=config.front_match_limit, deck=deck)]
@@ -200,8 +204,14 @@ def index():
                      m.stats(m.search(a_month_ago(),
                                       deck=deck, limit=None)),
                      m.stats(m.search(deck=deck, limit=None))]
-    opponent_stats = m.opponent_stats(m.search(a_week_ago(),
-                                               deck=deck))
+
+    if seen_range == "day":
+        seen_date = a_day_ago()
+    elif seen_range == "month":
+        seen_date = a_month_ago()
+    else:
+        seen_date = a_week_ago()
+    opponent_stats = m.opponent_stats(m.search(seen_date, deck=deck))
 
     args = {
         "modes": reversed(config.modes),
@@ -220,6 +230,7 @@ def index():
         "active_deck": active_deck,
         "active_opponent": active_opponent,
         "active_notes": request.args.get("notes", ""),
+        "active_seen": seen_range,
         "deck_exists": deck_exists,
         "submit_error": submit_error,
         "last_added": last_added
