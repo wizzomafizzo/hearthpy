@@ -29,31 +29,13 @@ app = Flask(__name__)
 re_deck_name = re.compile(config.deck_template)
 credentials = None
 
-def check_auth(username, password):
-    authed = (username == credentials["username"] and
-              password == credentials["password"])
-    if authed:
-        session.permanent = True
-        session["username"] = username
-        return True
-    else:
-        return False
-
-def authenticate():
-    return Response(
-    'Could not verify your access level for that URL.\n'
-    'You have to login with proper credentials', 401,
-    {'WWW-Authenticate': 'Basic realm="Login Required"'})
-
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        auth = request.authorization
         if "username" in session:
             return f(*args, **kwargs)
-        elif not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        return f(*args, **kwargs)
+        else:
+            return login()
     return decorated
 
 def format_winrate(stats):
@@ -96,21 +78,10 @@ def opponent_ratios(opponents):
     return sorted(ratios, key=lambda x: x[1], reverse=True)
 
 def hero_icon(stats):
-    icons = {
-        "Dd": "druid",
-        "Hr": "hunter",
-        "Me": "mage",
-        "Pn": "paladin",
-        "Pt": "priest",
-        "Re": "rogue",
-        "Sn": "shaman",
-        "Wk": "warlock",
-        "Wr": "warrior"
-    }
     name = stats["deck"]
     short_hero = name[0:2]
-    if short_hero in icons.keys():
-        icon = icons[short_hero]
+    if short_hero in config.heroes_abbrv.keys():
+        icon = config.heroes_abbrv[short_hero].lower()
     else:
         icon = "unknown"
     stats["hero_icon"] = icon
@@ -139,7 +110,6 @@ def is_int(value):
     return False
 
 @app.route("/", methods=["GET", "POST"])
-@requires_auth
 def index():
     m = Matches(db)
     form_mode = False
@@ -150,7 +120,7 @@ def index():
     submit_error = False
 
     # try submit a new match
-    if request.method == "POST":
+    if request.method == "POST" and "username" in session:
         form_mode = request.form.get("mode", "")
         form_deck = request.form.get("deck", "")
         form_opponent = request.form.get("opponent", "")
@@ -213,6 +183,19 @@ def index():
         seen_date = a_week_ago()
     opponent_stats = m.opponent_stats(m.search(seen_date, deck=deck))
 
+    if "username" in session:
+        gs = None
+    else:
+        gs = m.guest_stats()
+        if gs:
+            gs["best_rank"] = mode_icon({"mode": gs["best_rank"]})
+            gs["most_played_deck"] = hero_icon({"deck": gs["most_played_deck"][0],
+                                                "data": gs["most_played_deck"][1]})
+            gs["best_deck"] = hero_icon({"deck": gs["best_deck"][0],
+                                         "data": gs["best_deck"][1]})
+            gs["worst_deck"] = hero_icon({"deck": gs["worst_deck"][0],
+                                          "data": gs["worst_deck"][1]})
+
     args = {
         "modes": reversed(config.modes),
         "heroes": config.heroes,
@@ -233,6 +216,7 @@ def index():
         "active_seen": seen_range,
         "deck_exists": deck_exists,
         "submit_error": submit_error,
+        "guest_stats": gs,
         "last_added": last_added
     }
 
@@ -251,12 +235,11 @@ def remove_match():
         match = m.read(match)
         m.remove(match_id)
     return render_template("remove.html",
-                                 match_id=match_id,
-                                 match=match,
-                                 removed=removed)
+                           match_id=match_id,
+                           match=match,
+                           removed=removed)
 
 @app.route("/matches")
-@requires_auth
 def matches():
     m = Matches(db)
 
@@ -365,15 +348,7 @@ def matches():
 
     return render_template("matches.html", **args)
 
-@app.route("/matches.json")
-@requires_auth
-def export_matches():
-    m = Matches(db)
-    matches = m.all()
-    return dumps(matches)
-
 @app.route("/cards")
-@requires_auth
 def cards():
     c = Cards(db)
     search = {}
@@ -510,18 +485,18 @@ def set_notes(card_id, notes):
     c = Cards(db)
     return str(c.set_notes(card_id, notes))
 
-@app.route("/cards.json")
+@app.route("/matches.json")
 @requires_auth
-def export_cards():
-    c = Cards(db)
-    cards = c.all_cards()
-    return dumps(cards)
+def export_matches():
+    m = Matches(db)
+    matches = m.backup()
+    return dumps(matches)
 
 @app.route("/collection.json")
 @requires_auth
 def export_collection():
     c = Cards(db)
-    collection = c.all_collection()
+    collection = c.backup_collection()
     return dumps(collection)
 
 @app.route("/logout")
@@ -529,3 +504,20 @@ def export_collection():
 def logout():
     session.pop("username", None)
     return render_template("logout.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    login_failed = False
+    if not "username" in session and request.method == "POST":
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
+        authed = (username == credentials["username"] and
+                  password == credentials["password"])
+        if authed:
+            session.permanent = True
+            session["username"] = username
+            return render_template("login.html")
+        else:
+            login_failed = True
+
+    return render_template("login.html", login_failed=login_failed)

@@ -26,6 +26,21 @@
 
 .well {
 	padding: 6px;
+}
+
+.decks-well {
+	padding-bottom: 0;
+}
+
+.recent-matches {
+	padding-bottom: 0;
+}
+
+.match-search-well {
+	padding-bottom: 0;
+}
+
+.cards-search-well {
 	padding-bottom: 0;
 }
 
@@ -43,6 +58,32 @@
 .stats ul li {
 	text-align: left;
 	padding: 5px;
+}
+
+.stats ul li span.right {
+	padding-right: 1px;
+}
+
+.guest-stats {
+	padding-bottom: 9px;
+}
+
+.guest-stats ul {
+	margin-bottom: 0;
+	margin-top: 3px;
+}
+
+.guest-stats ul li {
+	padding: 5px;
+}
+
+.guest-stats ul li span.right {
+	padding-right: 1px;
+}
+
+.guest-stats ul li span.right div.icon-hero {
+	position: relative;
+	top: -2px;
 }
 
 #filter_reset {
@@ -112,10 +153,6 @@ table td {
 	top: 0;
 }
 
-.input-match {
-	padding-bottom: 6px;
-}
-
 .opponents-stats {
 	padding-bottom: 0;
 }
@@ -137,6 +174,10 @@ table td {
 .season-stats .label {
 	position: relative;
 	top: -2px;
+}
+
+.range-stats {
+	padding-bottom: 0;
 }
 
 .range-stats .label {
@@ -232,7 +273,6 @@ table td {
 }
 
 .cards-table {
-	padding-bottom: 6px;
 	margin-bottom: 0.5em;
 }
 
@@ -353,10 +393,6 @@ table td {
 	top: 5px;
 }
 
-.collection-overview {
-	padding-bottom: 6px;
-}
-
 .collection-overview a {
 	width: 100%;
 }
@@ -374,13 +410,39 @@ table td {
 }
 
 .opponents-range {
-	margin-bottom: 0.2em;
+	margin-bottom: 1px;
 }
 
 .opponents-range ul li a {
 	padding-top: 0.2em;
 	padding-bottom: 0.2em;
 	font-weight: bold;
+}
+
+.login-form {
+	margin-left: 1em;
+	margin-right: 1em;
+	text-align: center;
+}
+
+.login-form form {
+	margin: 1em;
+}
+
+.login-form button {
+	width: 100%;
+}
+
+.login-alert {
+	text-align: center;
+	margin: 1em;
+	margin-top: 0;
+}
+
+.logout-alert {
+	text-align: center;
+	margin: 1em;
+	margin-top: 0;
 }
 
 .icon-dust {

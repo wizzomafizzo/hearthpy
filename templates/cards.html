@@ -13,7 +13,7 @@
 		<strong>{{ total }}</strong> of <strong>{{ all_cards }}</strong>
 		(<strong>{{ "{0:0.1f}".format(total_ratio) }}%</strong>)
 	  </div>
-	  <div class="well">
+	  <div class="well cards-search-well">
 		<form method="get">
 		  <div class="form-group">
 			<label for="hero">Class</label>
@@ -156,11 +156,17 @@
 			  <ul class="list-group card-info">
 				<li class="list-group-item">
 				  <strong>Owned</strong>
+				  {% if "username" in session %}
 				  <span class="right">
 					<a href="javascript:void(0)" onclick="rc('{{ card.id }}')"><span class="glyphicon glyphicon-minus"></span></a>
 					<span id="owned-{{ card.id }}">{{ card.owned }}</span>
 					<a href="javascript:void(0)" onclick="ac('{{ card.id }}')"><span class="glyphicon glyphicon-plus"></span></a>
 				  </span>
+				  {% else %}
+				  <span class="right">
+					<span id="owned-{{ card.id }}">{{ card.owned }}</span>
+				  </span>
+				  {% endif %}
 				</li>
 				<li class="list-group-item">
 				  <strong>ID</strong><span class="right">
@@ -196,7 +202,8 @@
 			  <div class="well card-box">
 				<input type="text" class="form-control card-notes"
 					   placeholder="Notes" data-card-id="{{ card.id }}"
-					   value="{{ card.notes }}">
+					   value="{{ card.notes }}"
+					   {% if "username" not in session %}disabled{% endif %}>
 			  </div>
 			</div>
 		  </div>

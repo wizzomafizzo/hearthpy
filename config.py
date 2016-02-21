@@ -30,6 +30,18 @@ heroes = [
     "Warrior"
 ]
 
+heroes_abbrv = {
+    "Dd": "Druid",
+    "Hr": "Hunter",
+    "Me": "Mage",
+    "Pn": "Paladin",
+    "Pt": "Priest",
+    "Re": "Rogue",
+    "Sn": "Shaman",
+    "Wk": "Warlock",
+    "Wr": "Warrior"
+}
+
 modes = [
     "Legend",
     "Rank 1",

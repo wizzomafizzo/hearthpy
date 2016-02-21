@@ -156,19 +156,8 @@ class Matches():
         c = self.db.cursor()
         total = 0
         for match in matches:
-            if type(match) is list:
-                match = {
-                    "date": datetime.strptime(match[1],
-                                              "%a, %d %b %Y %H:%M:%S %Z"),
-                    "mode": match[2],
-                    "deck": match[3],
-                    "opponent": match[4],
-                    "notes": match[5],
-                    "outcome": match[6]
-                }
-            else:
-                match["date"] = datetime.strptime(match["date"],
-                                                  "%Y-%m-%d %H:%M:%S")
+            match["date"] = datetime.strptime(match["date"],
+                                              "%Y-%m-%d %H:%M:%S")
             c.execute(q, (match["date"], match["mode"], match["deck"],
                           match["opponent"], match["notes"], match["outcome"]))
             total += 1
@@ -332,6 +321,77 @@ class Matches():
             return config.modes[len(config.modes) - 1]
         else:
             return self.read(match)["mode"]
+
+    def best_rank(self):
+        q = "select distinct mode from matches"
+        c = self.db.cursor()
+        c.execute(q)
+        results = c.fetchall()
+
+        if len(results) == 0:
+            return "None"
+
+        modes = [x[0] for x in results]
+
+        if "Legend" in modes:
+            return "Legend"
+
+        ranks = [int(x[5:]) for x in modes
+                 if x.startswith("Rank")]
+
+        return "Rank " + str(sorted(ranks)[0])
+
+    def heroes_played(self):
+        matches = self.search()
+        heroes_tally = {}
+        for x in config.heroes_abbrv.keys():
+            heroes_tally[x] = 0
+
+        for x in matches:
+            hero = x["deck"][0:2]
+            heroes_tally[hero] += 1
+
+        heroes = [(config.heroes_abbrv[x], heroes_tally[x])
+                  for x in heroes_tally.keys()]
+
+        return sorted(heroes, key=lambda x: x[1], reverse=True)
+
+    def guest_stats(self):
+        stats = {}
+        deck_game_min = 20
+        matches = self.search()
+
+        if len(matches) == 0:
+            return False
+
+        deck_stats = self.deck_stats(None)
+        heroes_played = self.heroes_played()
+        opponent_stats = self.opponent_stats(matches)
+        opponents = []
+        for x in opponent_stats.keys():
+            opponents.append((x, opponent_stats[x]["total"],
+                              opponent_stats[x]["winrate"]))
+
+        deck_total = sorted([(x["deck"], x["total"]) for x in deck_stats],
+                            key=lambda x: x[1], reverse=True)
+        deck_winrate = sorted([(x["deck"], x["winrate"]) for x in deck_stats
+                               if x["total"] > deck_game_min],
+                              key=lambda x: x[1], reverse=True)
+        opponent_total = sorted(opponents, key=lambda x: x[1], reverse=True)
+        opponent_winrate = sorted(opponents, key=lambda x: x[2], reverse=True)
+
+        stats["most_played_deck"] = deck_total[0]
+        stats["best_deck"] = deck_winrate[0]
+        stats["worst_deck"] = deck_winrate[-1]
+        stats["most_seen_class"] = (opponent_total[0][0], opponent_total[0][1])
+        stats["least_seen_class"] = (opponent_total[-1][0], opponent_total[-1][1])
+        stats["best_seen_class"] = (opponent_winrate[0][0], opponent_winrate[0][2])
+        stats["worst_seen_class"] = (opponent_winrate[-1][0], opponent_winrate[-1][2])
+        stats["best_rank"] = self.best_rank()
+        stats["most_played_class"] = heroes_played[0]
+        stats["least_played_class"] = heroes_played[-1]
+
+        return stats
 
 
 class Cards():
