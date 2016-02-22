@@ -205,6 +205,9 @@
 			  </tbody>
 			</table>
 			{% endif %}
+			<span class="info-icon glyphicon glyphicon-info-sign"
+				  title="Recent Decks" data-toggle="tooltip"
+				  data-placement="left"></span>
 		  </div>
 		</div>
 	  </div>
@@ -247,6 +250,9 @@
 				</span>
 			  </li>
 			</ul>
+			<span class="info-icon glyphicon glyphicon-info-sign"
+				  title="Season Stats" data-toggle="tooltip"
+				  data-placement="left"></span>
 		  </div>
 		</div>
 		{% if active_deck != "" %}
@@ -317,63 +323,160 @@
 				</tr>
 			  </tbody>
 			</table>
+			<span class="info-icon glyphicon glyphicon-info-sign"
+				  title="Overall Stats" data-toggle="tooltip"
+				  data-placement="left"></span>
 		  </div>
 		</div>
 		<div class="col-md-12">
 		  <div class="well opponents-stats">
 			<div class="opponents-range">
-			  <ul class="nav nav-tabs nav-justified">
-				<li role="presentation"{% if active_seen == 'day' %} class="active"{% endif %}>
-				  <a href="./?deck={{ active_deck|urlencode }}&seen=day">Day</a>
+			  <ul id="opponents-tabs" class="nav nav-tabs" role="tablist">
+				<li role="presentation">
+				  <a href="#opponents-day" aria-controls="opponents-day"
+					 role="tab" data-toggle="tab">Day</a>
 				</li>
-				<li role="presentation"{% if active_seen == 'week' %} class="active"{% endif %}>
-				  <a href="./?deck={{ active_deck|urlencode }}&seen=week">Week</a>
+				<li role="presentation" class="active">
+				  <a href="#opponents-week" aria-controls="opponents-week"
+					 role="tab" data-toggle="tab">Week</a>
 				</li>
-				<li role="presentation"{% if active_seen == 'month' %} class="active"{% endif %}>
-				  <a href="./?deck={{ active_deck|urlencode }}&seen=month">Month</a>
+				<li role="presentation">
+				  <a href="#opponents-month" aria-controls="opponents-month"
+					 role="tab" data-toggle="tab">Month</a>
 				</li>
 			  </ul>
 			</div>
-			<table class="table table-condensed">
-			  <thead>
-				<tr>
-				  <th><span class="glyphicon glyphicon-user" title="Opponents This Week"
-							data-toggle="tooltip"></span></th>
-				  <th><span class="glyphicon glyphicon-ok" title="Wins"
-							data-toggle="tooltip"></span></th>
-				  <th><span class="glyphicon glyphicon-remove" title="Losses"
-							data-toggle="tooltip"></span></th>
-				  <th><span class="glyphicon glyphicon-flag" title="Total"
-							data-toggle="tooltip"></span></th>
-				  <th><span class="glyphicon glyphicon-stats" title="Winrate"
-							data-toggle="tooltip"></span></th>
-				</tr>
-			  </thead>
-			  <tbody>
-				{% for opponent in opponent_stats %}
-				<tr class="opponents-row">
-				  <td class="stats-range">
-					<div class="icon-hero icon-{{ opponent.opponent.lower() }}"></div>
-					<span>{{ opponent.opponent }}</span>
-				  </td>
-				  <td><span>{{ opponent.wins }}</span></td>
-				  <td><span>{{ opponent.losses }}</span></td>
-				  <td><span>{{ opponent.total}}</span></td>
-				  <td><span class="label label-{{ opponent.label }}">
-					{{ "{0:0.1f}".format(opponent.winrate) }}%
-				  </span></td>
-				</tr>
-				{% endfor %}
-			  </tbody>
-			</table>
-			<div class="progress progress-opponent">
-			  {% for x in opponent_ratios %}
-			  <div class="progress-bar progress-{{ x[0].lower() }}"
-				   style="width: {{ x[1] }}%"
-				   title="{{ x[0] }}" data-toggle="tooltip">
+			<div class="tab-content">
+			  <div role="tabpanel" class="tab-pane" id="opponents-day">
+				<table class="table table-condensed">
+				  <thead>
+					<tr>
+					  <th><span class="glyphicon glyphicon-user" title="Opponents"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-ok" title="Wins"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-remove" title="Losses"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-flag" title="Total"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-stats" title="Winrate"
+								data-toggle="tooltip"></span></th>
+					</tr>
+				  </thead>
+				  <tbody>
+					{% for opponent in opponent_stats.day %}
+					<tr class="opponents-row">
+					  <td class="stats-range">
+						<div class="icon-hero icon-{{ opponent.opponent.lower() }}"></div>
+						<span>{{ opponent.opponent }}</span>
+					  </td>
+					  <td><span>{{ opponent.wins }}</span></td>
+					  <td><span>{{ opponent.losses }}</span></td>
+					  <td><span>{{ opponent.total}}</span></td>
+					  <td><span class="label label-{{ opponent.label }}">
+						{{ "{0:0.1f}".format(opponent.winrate) }}%
+					  </span></td>
+					</tr>
+					{% endfor %}
+				  </tbody>
+				</table>
+				<div class="progress progress-opponent">
+				  {% for x in opponent_ratios.day %}
+				  <div class="progress-bar progress-{{ x[0].lower() }}"
+					   style="width: {{ x[1] }}%"
+					   title="{{ x[0] }}" data-toggle="tooltip">
+				  </div>
+				  {% endfor %}
+				</div>
 			  </div>
-			  {% endfor %}
+			  <div role="tabpanel" class="tab-pane active" id="opponents-week">
+				<table class="table table-condensed">
+				  <thead>
+					<tr>
+					  <th><span class="glyphicon glyphicon-user" title="Opponents"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-ok" title="Wins"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-remove" title="Losses"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-flag" title="Total"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-stats" title="Winrate"
+								data-toggle="tooltip"></span></th>
+					</tr>
+				  </thead>
+				  <tbody>
+					{% for opponent in opponent_stats.week %}
+					<tr class="opponents-row">
+					  <td class="stats-range">
+						<div class="icon-hero icon-{{ opponent.opponent.lower() }}"></div>
+						<span>{{ opponent.opponent }}</span>
+					  </td>
+					  <td><span>{{ opponent.wins }}</span></td>
+					  <td><span>{{ opponent.losses }}</span></td>
+					  <td><span>{{ opponent.total}}</span></td>
+					  <td><span class="label label-{{ opponent.label }}">
+						{{ "{0:0.1f}".format(opponent.winrate) }}%
+					  </span></td>
+					</tr>
+					{% endfor %}
+				  </tbody>
+				</table>
+				<div class="progress progress-opponent">
+				  {% for x in opponent_ratios.week %}
+				  <div class="progress-bar progress-{{ x[0].lower() }}"
+					   style="width: {{ x[1] }}%"
+					   title="{{ x[0] }}" data-toggle="tooltip">
+				  </div>
+				  {% endfor %}
+				</div>
+			  </div>
+			  <div role="tabpanel" class="tab-pane" id="opponents-month">
+				<table class="table table-condensed">
+				  <thead>
+					<tr>
+					  <th><span class="glyphicon glyphicon-user" title="Opponents"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-ok" title="Wins"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-remove" title="Losses"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-flag" title="Total"
+								data-toggle="tooltip"></span></th>
+					  <th><span class="glyphicon glyphicon-stats" title="Winrate"
+								data-toggle="tooltip"></span></th>
+					</tr>
+				  </thead>
+				  <tbody>
+					{% for opponent in opponent_stats.month %}
+					<tr class="opponents-row">
+					  <td class="stats-range">
+						<div class="icon-hero icon-{{ opponent.opponent.lower() }}"></div>
+						<span>{{ opponent.opponent }}</span>
+					  </td>
+					  <td><span>{{ opponent.wins }}</span></td>
+					  <td><span>{{ opponent.losses }}</span></td>
+					  <td><span>{{ opponent.total}}</span></td>
+					  <td><span class="label label-{{ opponent.label }}">
+						{{ "{0:0.1f}".format(opponent.winrate) }}%
+					  </span></td>
+					</tr>
+					{% endfor %}
+				  </tbody>
+				</table>
+				<div class="progress progress-opponent">
+				  {% for x in opponent_ratios.month %}
+				  <div class="progress-bar progress-{{ x[0].lower() }}"
+					   style="width: {{ x[1] }}%"
+					   title="{{ x[0] }}" data-toggle="tooltip">
+				  </div>
+				  {% endfor %}
+				</div>
+			  </div>
 			</div>
+			<span class="info-icon glyphicon glyphicon-info-sign"
+				  title="Opponent Stats" data-toggle="tooltip"
+				  data-placement="left"></span>
 		  </div>
 		</div>
 	  </div>
@@ -431,6 +534,9 @@
 			  </tbody>
 			</table>
 			{% endif %}
+			<span class="info-icon glyphicon glyphicon-info-sign"
+				  title="Recent Matches" data-toggle="tooltip"
+				  data-placement="left"></span>
 		  </div>
 		</div>
 	  </div>

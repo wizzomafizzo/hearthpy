@@ -4,7 +4,6 @@ import re
 from functools import wraps
 
 from flask import Flask
-from flask import Response
 from flask import request
 from flask import render_template
 
@@ -148,7 +147,6 @@ def index():
     active_mode = (form_mode or request.args.get("mode", ""))
     active_deck = (form_deck or request.args.get("deck", ""))
     active_opponent = (form_opponent or request.args.get("opponent", ""))
-    seen_range = request.args.get("seen", "")
 
     if active_mode == "":
         active_mode = m.last_mode()
@@ -158,43 +156,37 @@ def index():
     else:
         deck = None
 
-    if seen_range == "":
-        seen_range = "week"
-
     matches = [mode_icon(hero_icon(x)) for x in
                m.search(limit=config.front_match_limit, deck=deck)]
-    deck_stats = [hero_icon(x) for x in
-                  m.deck_stats(a_month_ago())]
-    season_stats = m.stats(m.search(start_of_month(),
-                                    mode="Ranked"))
-    overall_stats = [m.stats(m.search(a_day_ago(),
-                                      deck=deck, limit=None)),
-                     m.stats(m.search(a_week_ago(),
-                                      deck=deck, limit=None)),
-                     m.stats(m.search(a_month_ago(),
-                                      deck=deck, limit=None)),
+    deck_stats = [hero_icon(x) for x in m.deck_stats(a_month_ago())]
+    season_stats = m.stats(m.search(start_of_month(), mode="Ranked"))
+    overall_stats = [m.stats(m.search(a_day_ago(), deck=deck, limit=None)),
+                     m.stats(m.search(a_week_ago(), deck=deck, limit=None)),
+                     m.stats(m.search(a_month_ago(), deck=deck, limit=None)),
                      m.stats(m.search(deck=deck, limit=None))]
 
-    if seen_range == "day":
-        seen_date = a_day_ago()
-    elif seen_range == "month":
-        seen_date = a_month_ago()
-    else:
-        seen_date = a_week_ago()
-    opponent_stats = m.opponent_stats(m.search(seen_date, deck=deck))
+    opponent_stats = {
+        "day": m.opponent_stats(m.search(a_day_ago(), deck=deck)),
+        "week": m.opponent_stats(m.search(a_week_ago(), deck=deck)),
+        "month": m.opponent_stats(m.search(a_month_ago(), deck=deck))
+    }
 
     if "username" in session:
         gs = None
     else:
         gs = m.guest_stats()
         if gs:
-            gs["best_rank"] = mode_icon({"mode": gs["best_rank"]})
-            gs["most_played_deck"] = hero_icon({"deck": gs["most_played_deck"][0],
-                                                "data": gs["most_played_deck"][1]})
-            gs["best_deck"] = hero_icon({"deck": gs["best_deck"][0],
-                                         "data": gs["best_deck"][1]})
-            gs["worst_deck"] = hero_icon({"deck": gs["worst_deck"][0],
-                                          "data": gs["worst_deck"][1]})
+            best_rank = mode_icon({"mode": gs["best_rank"]})
+            most_played_deck = hero_icon({"deck": gs["most_played_deck"][0],
+                                          "data": gs["most_played_deck"][1]})
+            best_deck = hero_icon({"deck": gs["best_deck"][0],
+                                   "data": gs["best_deck"][1]})
+            worst_deck = hero_icon({"deck": gs["worst_deck"][0],
+                                    "data": gs["worst_deck"][1]})
+            gs["best_rank"] = best_rank
+            gs["most_played_deck"] = most_played_deck
+            gs["best_deck"] = best_deck
+            gs["worst_deck"] = worst_deck
 
     args = {
         "modes": reversed(config.modes),
@@ -203,9 +195,19 @@ def index():
         "season_stats": format_winrate(season_stats),
         "season_rank": mode_icon({"mode": m.current_rank()}),
         "overall_stats": [format_winrate(x) for x in overall_stats],
-        "opponent_stats": [format_winrate(x) for x in
-                           format_opponents(opponent_stats)],
-        "opponent_ratios": opponent_ratios(opponent_stats),
+        "opponent_stats": {
+            "day": [format_winrate(x) for x in
+                    format_opponents(opponent_stats["day"])],
+            "week": [format_winrate(x) for x in
+                     format_opponents(opponent_stats["week"])],
+            "month": [format_winrate(x) for x in
+                      format_opponents(opponent_stats["month"])]
+        },
+        "opponent_ratios": {
+            "day": opponent_ratios(opponent_stats["day"]),
+            "week": opponent_ratios(opponent_stats["week"]),
+            "month": opponent_ratios(opponent_stats["month"])
+        },
         "matches": format_matches(matches),
         "total_matches": len(matches),
         "total_decks": len(deck_stats),
@@ -213,7 +215,6 @@ def index():
         "active_deck": active_deck,
         "active_opponent": active_opponent,
         "active_notes": request.args.get("notes", ""),
-        "active_seen": seen_range,
         "deck_exists": deck_exists,
         "submit_error": submit_error,
         "guest_stats": gs,

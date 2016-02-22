@@ -7,6 +7,7 @@ match_limit = 20
 front_match_limit = 21
 card_limit = 22
 winrate_tiers = [50, 60] # %
+min_games_deck = 20
 deck_template = "^(Dd|Hr|Me|Pn|Pt|Re|Sn|Wk|Wr) .+ \d+\.\d+$"
 card_image_url = "http://wow.zamimg.com/images/hearthstone/cards/enus/original/{}.png"
 cards_json_url = "https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"

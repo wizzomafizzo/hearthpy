@@ -156,7 +156,8 @@ class Matches():
         c = self.db.cursor()
         total = 0
         for match in matches:
-            match["date"] = datetime.strptime(match["date"],
+
+            match["date"] = datetime.strptime(match["date"][0:19],
                                               "%Y-%m-%d %H:%M:%S")
             c.execute(q, (match["date"], match["mode"], match["deck"],
                           match["opponent"], match["notes"], match["outcome"]))
@@ -358,7 +359,6 @@ class Matches():
 
     def guest_stats(self):
         stats = {}
-        deck_game_min = 20
         matches = self.search()
 
         if len(matches) == 0:
@@ -375,7 +375,7 @@ class Matches():
         deck_total = sorted([(x["deck"], x["total"]) for x in deck_stats],
                             key=lambda x: x[1], reverse=True)
         deck_winrate = sorted([(x["deck"], x["winrate"]) for x in deck_stats
-                               if x["total"] > deck_game_min],
+                               if x["total"] > config.min_games_deck],
                               key=lambda x: x[1], reverse=True)
         opponent_total = sorted(opponents, key=lambda x: x[1], reverse=True)
         opponent_winrate = sorted(opponents, key=lambda x: x[2], reverse=True)

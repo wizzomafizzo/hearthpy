@@ -410,7 +410,7 @@ table td {
 }
 
 .opponents-range {
-	margin-bottom: 1px;
+	margin-bottom: 2px;
 }
 
 .opponents-range ul li a {
@@ -443,6 +443,15 @@ table td {
 	text-align: center;
 	margin: 1em;
 	margin-top: 0;
+}
+
+.info-icon {
+	float: left;
+	position: absolute;
+	top: 6px;
+	right: 9px;
+	font-size: 1.2em;
+	opacity: 0.4;
 }
 
 .icon-dust {
