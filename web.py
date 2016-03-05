@@ -1,9 +1,12 @@
 # hearthpy web
 
 import re
+import sys
+import urllib.parse
 from functools import wraps
 
 from flask import Flask
+from flask import Response
 from flask import request
 from flask import render_template
 
@@ -108,6 +111,26 @@ def is_int(value):
   except ValueError:
     return False
 
+def update_query_offset(query, offset):
+    old_args = urllib.parse.parse_qsl(query)
+
+    if old_args is None:
+        return urllib.parse.urlencode([("offset", offset)])
+
+    new_args = []
+    updated = False
+    for x in old_args:
+        if x[0] == "offset":
+            new_args.append(("offset", offset))
+            updated = True
+        else:
+            new_args.append(x)
+
+    if not updated:
+        new_args.append(("offset", offset))
+
+    return urllib.parse.urlencode(new_args)
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     m = Matches(db)
@@ -159,7 +182,7 @@ def index():
     matches = [mode_icon(hero_icon(x)) for x in
                m.search(limit=config.front_match_limit, deck=deck)]
     deck_stats = [hero_icon(x) for x in m.deck_stats(a_month_ago())]
-    season_stats = m.stats(m.search(start_of_month(), mode="Ranked"))
+    season_stats = m.stats(m.search(start_of_month(), mode=["Ranked"]))
     overall_stats = [m.stats(m.search(a_day_ago(), deck=deck, limit=None)),
                      m.stats(m.search(a_week_ago(), deck=deck, limit=None)),
                      m.stats(m.search(a_month_ago(), deck=deck, limit=None)),
@@ -246,16 +269,12 @@ def matches():
 
     from_date = request.args.get("from", "")
     to_date = request.args.get("to", "")
-    mode = request.args.get("mode", "")
+    mode = request.args.getlist("mode")
     deck = request.args.get("deck", "")
-    opponent = request.args.get("opponent", "")
+    opponent = request.args.getlist("opponent")
     notes = request.args.get("notes", "")
     outcome = request.args.get("outcome", "")
     offset = request.args.get("offset", "")
-
-    url_args = "?from={}&to={}&mode={}&deck={}&opponent={}&notes={}&outcome={}"
-    url_args = url_args.format(from_date, to_date, mode, deck, opponent,
-                               notes, outcome)
 
     search = {}
 
@@ -277,13 +296,13 @@ def matches():
     else:
         search["to_date"] = None
 
-    if mode != "" and mode != "All":
+    if len(mode) > 0 and "All" not in mode:
         search["mode"] = mode
 
     if deck != "":
         search["deck"] = deck
 
-    if opponent != "" and opponent != "All":
+    if len(opponent) > 0 and "All" not in opponent:
         search["opponent"] = opponent
 
     if notes != "":
@@ -315,6 +334,10 @@ def matches():
     if next_offset > matches_found:
         next_offset = matches_found - config.match_limit
 
+    query = request.query_string.decode()
+    prev_url = update_query_offset(query, prev_offset)
+    next_url = update_query_offset(query, next_offset)
+
     total_ratio = winrate(total, matches_found)
     stats = m.stats(matches)
     opponent_stats = m.opponent_stats(matches)
@@ -336,10 +359,9 @@ def matches():
         "total_ratio": total_ratio,
         "matches_found": matches_found,
         "offset": offset,
-        "prev_offset": prev_offset,
-        "next_offset": next_offset,
+        "prev_url": prev_url,
+        "next_url": next_url,
         "limit": config.match_limit,
-        "url_args": url_args,
         "current_page": int(offset / config.match_limit) + 1,
         "total_pages": int(matches_found / config.match_limit) + 1,
         "prev_pages_left": offset > 0,
@@ -364,14 +386,9 @@ def cards():
     card_set = request.args.get("set", "")
     card_type = request.args.get("type", "")
     mechanics = request.args.get("effects", "")
+    notes = request.args.get("notes", "")
     offset = request.args.get("offset", "")
     missing = request.args.get("missing", "")
-
-    url_args = ("?name={}&text={}&hero={}&mana={}&attack={}&health={}" +
-                "&rarity={}&set={}&type={}&effects={}&missing={}")
-    url_args = url_args.format(name, text, hero, mana, attack, health,
-                               rarity, card_set, card_type, mechanics,
-                               missing)
 
     if name != "":
         search["name"] = name
@@ -382,14 +399,14 @@ def cards():
     if hero != "" and hero != "All":
         search["hero"] = hero
 
-    if mana != "" and is_int(mana) and int(mana) >= 0:
-        search["cost"] = int(mana)
+    if mana != "":
+        search["cost"] = mana
 
-    if attack != "" and is_int(attack) and int(attack) >= 0:
-        search["attack"] = int(attack)
+    if attack != "":
+        search["attack"] = attack
 
-    if health != "" and is_int(health) and int(health) >= 0:
-        search["health"] = int(health)
+    if health != "":
+        search["health"] = health
 
     if rarity != "" and rarity != "All":
         search["rarity"] = rarity
@@ -402,6 +419,9 @@ def cards():
 
     if mechanics != "":
         search["mechanics"] = mechanics
+
+    if notes != "":
+        search["notes"] = notes
 
     missing_cards = c.missing()
 
@@ -416,13 +436,6 @@ def cards():
     else:
         offset = 0
 
-    prev_offset = offset - config.card_limit
-    if prev_offset < 0:
-        prev_offset = 0
-    next_offset = offset + config.card_limit
-    if next_offset > total:
-        next_offset = total - config.card_limit
-
     dust_needed = c.dust_needed()
     if len(dust_needed.keys()) > 0:
         packs = sorted(list(dust_needed.items()), key=lambda x: x[0])
@@ -430,6 +443,17 @@ def cards():
     else:
         packs = []
         buy_pack = None
+
+    prev_offset = offset - config.card_limit
+    if prev_offset < 0:
+        prev_offset = 0
+    next_offset = offset + config.card_limit
+    if next_offset > total:
+        next_offset = total - config.card_limit
+
+    query = request.query_string.decode()
+    prev_url = update_query_offset(query, prev_offset)
+    next_url = update_query_offset(query, next_offset)
 
     args = {
         "cards": [format_card(x) for x in
@@ -448,11 +472,11 @@ def cards():
         "card_set": card_set,
         "card_type": card_type,
         "mechanics": mechanics,
+        "notes": notes,
         "offset": offset,
-        "prev_offset": prev_offset,
-        "next_offset": next_offset,
+        "prev_url": prev_url,
+        "next_url": next_url,
         "limit": config.card_limit,
-        "url_args": url_args,
         "current_page": int(offset / config.card_limit) + 1,
         "total_pages": int(total / config.card_limit) + 1,
         "prev_pages_left": offset > 0,
@@ -491,14 +515,18 @@ def set_notes(card_id, notes):
 def export_matches():
     m = Matches(db)
     matches = m.backup()
-    return dumps(matches)
+    return Response(response=dumps(matches),
+                    status=200,
+                    mimetype="application/json")
 
 @app.route("/collection.json")
 @requires_auth
 def export_collection():
     c = Cards(db)
     collection = c.backup_collection()
-    return dumps(collection)
+    return Response(response=dumps(collection),
+                    status=200,
+                    mimetype="application/json")
 
 @app.route("/logout")
 @requires_auth

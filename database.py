@@ -70,6 +70,145 @@ def import_old_matches(db, export_filename):
     db.commit()
     return total
 
+def text_search_builder(column, s):
+    assert type(column) is str
+    assert type(s) is str
+
+    if s == "":
+        return {
+            "params": ["%"],
+            "query": "{} like ?".format(column)
+        }
+
+    if s[0] == "!":
+        negate = True
+        s = s[1:]
+    else:
+        negate = False
+
+    if s[0] == "=":
+        search_type = "exact"
+        s = s[1:]
+    elif s[0] == "&":
+        search_type = "and"
+        s = s[1:]
+    else:
+        search_type = "or"
+
+    if search_type == "exact":
+        if negate:
+            exact_query = "{} not like ?"
+        else:
+            exact_query = "{} like ?"
+        return {
+            "params": ["{}".format(s)],
+            "query": exact_query.format(column)
+        }
+
+    s = " ".join(s.split())
+    params = []
+    query_parts = []
+
+    for x in s.split(" "):
+        if negate:
+            query_parts.append("{} not like ?".format(column))
+        else:
+            query_parts.append("{} like ?".format(column))
+        params.append("%{}%".format(x))
+
+    if search_type == "and":
+        query = " and ".join(query_parts)
+    else:
+        query = " or ".join(query_parts)
+
+    return {
+        "params": params,
+        "query": query
+    }
+
+def range_search_builder(column, s):
+    assert type(column) is str
+    assert type(s) is str
+
+    s = s.replace(" ", "")
+    limits = s.split("-")
+
+    try:
+        x = int(limits[0])
+    except ValueError:
+        x = None
+
+    if len(limits) == 1:
+        if x is None:
+            return
+        return {
+            "params": [x],
+            "query": "{} = ?".format(column)
+        }
+
+    try:
+        y = int(limits[1])
+    except ValueError:
+        y = None
+
+    if x is None and y is None:
+        return
+
+    if y is None:
+        return {
+            "params": [x],
+            "query": "{} >= ?".format(column)
+        }
+
+    if x is None:
+        return {
+            "params": [y],
+            "query": "{} <= ?".format(column)
+        }
+
+    return {
+        "params": [x, y],
+        "query": "{} between ? and ?".format(column)
+    }
+
+def options_search_builder(column, os, fuzzy=False):
+    assert type(column) is str
+    assert type(os) is list
+    if len(os) == 0:
+        return
+
+    query_parts = []
+    params = []
+
+    for o in os:
+        query_parts.append("{} like ?".format(column))
+        if fuzzy:
+            params.append("%{}%".format(o))
+        else:
+            params.append("{}".format(o))
+
+    return {
+        "params": params,
+        "query": " or ".join(query_parts)
+    }
+
+def mode_search_builder(modes):
+    assert type(modes) is list
+
+    if len(modes) == 0:
+        return
+    elif "All" in modes:
+        return
+    elif "Ranked" in modes and "Casual" in modes:
+        return
+    elif "Ranked" in modes and "Casual" not in modes:
+        return {
+            "params": ["Casual"],
+            "query": "mode not like ?"
+        }
+    else:
+        return options_search_builder("mode", modes)
+
 
 class Matches():
     def __init__(self, db):
@@ -168,8 +307,7 @@ class Matches():
     def search(self, from_date=None, to_date=None,
                mode=None, deck=None, opponent=None,
                notes=None, outcome=None, limit=None):
-        q = ("select rowid,* from matches where date between ? and ? "
-             "and deck like ? and opponent like ? and notes like ? ")
+        q = "select rowid,* from matches where date between ? and ? "
 
         # from_date
         if from_date is None:
@@ -181,41 +319,45 @@ class Matches():
             to_date = datetime.now()
         else:
             assert type(to_date) is datetime
+
+        args = [from_date, to_date]
+
         # deck
-        if deck is None:
-            deck = "%"
-        else:
-            assert type(deck) is str
-            deck = "%{}%".format(deck)
-        # opponent
-        if opponent is None:
-            opponent = "%"
-        else:
-            assert type(opponent) is str
+        if deck is not None:
+            deck_search = text_search_builder("deck", deck)
+            q += "and (" + deck_search["query"] + ") "
+            for x in deck_search["params"]:
+                args.append(x)
+
         # notes
-        if notes is None:
-            notes = "%"
-        else:
-            assert type(notes) is str
-            notes = "%{}%".format(notes)
+        if notes is not None:
+            notes_search = text_search_builder("notes", notes)
+            q += "and (" + notes_search["query"] + ") "
+            for x in notes_search["params"]:
+                args.append(x)
+
+        # opponent
+        if (opponent is not None and
+            type(opponent) is list and
+            "All" not in opponent):
+            opponent_search = options_search_builder("opponent", opponent)
+            q += "and (" + opponent_search["query"] + ") "
+            for x in opponent_search["params"]:
+                args.append(x)
+
         # mode
-        if mode is None:
-            mode = "%"
-            q += "and mode like ? "
-        elif mode == "Ranked":
-            mode = "Casual"
-            q += "and mode != ? "
-        else:
-            assert type(mode) is str
-            q += "and mode like ? "
+        if mode is not None:
+            mode_search = mode_search_builder(mode)
+            q += "and (" + mode_search["query"] + ") "
+            for x in mode_search["params"]:
+                args.append(x)
+
         # outcome
         if outcome is not None:
             if outcome:
                 q += "and outcome = 1 "
             else:
                 q += "and outcome = 0 "
-
-        args = [from_date, to_date, deck, opponent, notes, mode]
 
         q += "order by date desc"
 
@@ -308,7 +450,7 @@ class Matches():
         return opponents
 
     def current_rank(self):
-        matches = self.search(start_of_month(), mode="Ranked")
+        matches = self.search(start_of_month(), mode=["Ranked"])
         if len(matches) == 0:
             return config.modes[len(config.modes) - 2]
         return matches[0]["mode"]
@@ -629,67 +771,92 @@ class Cards():
     def search(self, name=None, text=None, rarity=None,
                card_type=None, cost=None, attack=None,
                health=None, card_set=None, mechanics=None,
-               hero=None, owned=None, limit=None, offset=None):
-        if name is None:
-            name = "%"
+               hero=None, owned=None, notes=None,
+               limit=None, offset=None):
+        q = ("select * from cards left join collection on "
+             "cards.card_id = collection.card_id where ")
+        args = []
+
+        if (hero is not None and
+            type(hero) is list and
+            "All" not in hero):
+            hero_search = options_search_builder("class", hero)
+            q += "(" + hero_search["query"] + ") "
+            for x in hero_search["params"]:
+                args.append(x)
         else:
-            assert type(name) is str
-            name = "%{}%".format(name)
+            q += "class like '%' "
 
-        if text is None:
-            text = "%"
-        else:
-            assert type(text) is str
-            text = "%{}%".format(text)
+        if (rarity is not None and
+            type(rarity) is list and
+            "All" not in rarity):
+            rarity_search = options_search_builder("rarity", rarity)
+            q += "and (" + rarity_search["query"] + ") "
+            for x in rarity_search["params"]:
+                args.append(x)
 
-        if rarity is None:
-            rarity = "%"
-        else:
-            assert type(rarity) is str
+        if (card_set is not None and
+            type(card_set) is list and
+            "All" not in card_set):
+            card_set_search = options_search_builder("card_set", card_set)
+            q += "and (" + card_set_search["query"] + ") "
+            for x in card_set_search["params"]:
+                args.append(x)
 
-        if card_type is None:
-            card_type = "%"
-        else:
-            assert type(card_type) is str
+        if (card_type is not None and
+            type(card_type) is list and
+            "All" not in card_type):
+            card_type_search = options_search_builder("type", card_type)
+            q += "and (" + card_type_search["query"] + ") "
+            for x in card_type_search["params"]:
+                args.append(x)
 
-        if card_set is None:
-            card_set = "%"
-        else:
-            assert type(card_set) is str
+        if (mechanics is not None and
+            type(mechanics) is list and
+            "All" not in mechanics):
+            mechanics_search = options_search_builder("mechanics", mechanics)
+            q += "and (" + mechanics_search["query"] + ") "
+            for x in mechanics_search["params"]:
+                args.append(x)
 
-        if mechanics is None:
-            mechanics = "%"
-        else:
-            assert type(mechanics) is str
-            mechanics = "%{}%".format(mechanics)
+        if name is not None:
+            name_search = text_search_builder("name", name)
+            q += "and (" + name_search["query"] + ") "
+            for x in name_search["params"]:
+                args.append(x)
 
-        if hero is None:
-            hero = "%"
-        else:
-            assert type(hero) is str
+        if text is not None:
+            text_search = text_search_builder("card_text", text)
+            q += "and (" + text_search["query"] + ") "
+            for x in text_search["params"]:
+                args.append(x)
 
-        q = ("select * from cards "
-             "left join collection on cards.card_id = collection.card_id "
-             "where name like ? and card_text like ? "
-             "and rarity like ? and type like ? and card_set like ? "
-             "and mechanics like ? and class like? ")
-
-        args = [name, text, rarity, card_type, card_set, mechanics, hero]
+        if notes is not None:
+            notes_search = text_search_builder("notes", notes)
+            q += "and (" + notes_search["query"] + ") "
+            for x in notes_search["params"]:
+                args.append(x)
 
         if cost is not None:
-            assert type(cost) is int
-            q += "and cost = ? "
-            args.append(cost)
+            cost_search = range_search_builder("cost", cost)
+            if cost_search is not None:
+                q += "and " + cost_search["query"] + " "
+                for x in cost_search["params"]:
+                    args.append(x)
 
         if attack is not None:
-            assert type(attack) is int
-            q += "and attack = ? "
-            args.append(attack)
+            attack_search = range_search_builder("attack", attack)
+            if attack_search is not None:
+                q += "and " + attack_search["query"] + " "
+                for x in attack_search["params"]:
+                    args.append(x)
 
         if health is not None:
-            assert type(health) is int
-            q += "and health = ? "
-            args.append(health)
+            health_search = range_search_builder("health", health)
+            if health_search is not None:
+                q += "and " + health_search["query"] + " "
+                for x in health_search["params"]:
+                    args.append(x)
 
         if owned is not None:
             assert type(owned) is int
@@ -707,6 +874,9 @@ class Cards():
             assert type(offset) is int
             q += " offset ?"
             args.append(offset)
+
+        print(args)
+        print(q)
 
         c = self.db.cursor()
         c.execute(q, args)

@@ -39,21 +39,21 @@
 			<div class="col-md-3">
 			  <div class="form-group">
 				<label>Mana</label>
-				<input type="number" class="form-control"
+				<input type="text" class="form-control" pattern="[0-9\-]+"
 					   name="mana" value="{{ mana }}">
 			  </div>
 			</div>
 			<div class="col-md-3">
 			  <div class="form-group">
 				<label>Attack</label>
-				<input type="number" class="form-control"
+				<input type="text" class="form-control" pattern="[0-9\-]+"
 					   name="attack" value="{{ attack }}">
 			  </div>
 			</div>
 			<div class="col-md-3">
 			  <div class="form-group">
 				<label>Health</label>
-				<input type="number" class="form-control"
+				<input type="text" class="form-control" pattern="[0-9\-]+"
 					   name="health" value="{{ health }}">
 			  </div>
 			</div>
@@ -92,6 +92,11 @@
 			<label for="effects">Effects</label>
 			<input id="effects" type="search" class="form-control"
 				   name="effects" value="{{ mechanics }}">
+		  </div>
+		  <div class="form-group">
+			<label for="notes">Notes</label>
+			<input id="notes" type="search" class="form-control"
+				   name="notes" value="{{ notes }}">
 		  </div>
 		  <div class="form-group">
 			<button type="submit" class="btn btn-default search-button">
@@ -214,7 +219,7 @@
 	  <nav>
 		<ul class="pager">
 		  <li class="previous{% if not prev_pages_left %} disabled{% endif %}">
-			<a href="{% if prev_pages_left %}cards{{ url_args }}&offset={{ prev_offset }}{% else %}#{% endif %}">
+			<a href="{% if prev_pages_left %}cards?{{ prev_url }}{% else %}#{% endif %}">
 			  <span class="glyphicon glyphicon-arrow-left"></span>
 			</a>
 		  </li>
@@ -222,7 +227,7 @@
 			<strong>{{ current_page }}</strong> of <strong>{{ total_pages }}</strong>
 		  </span>
 		  <li class="next{% if not next_pages_left %} disabled{% endif %}">
-			<a href="{% if next_pages_left %}cards{{ url_args }}&offset={{ next_offset }}{% else %}#{% endif %}">
+			<a href="{% if next_pages_left %}cards?{{ next_url }}{% else %}#{% endif %}">
 			  <span class="glyphicon glyphicon-arrow-right"></span>
 			</a>
 		  </li>
@@ -233,7 +238,6 @@
 </div>
 {% endblock %}
 {% block script %}
-<script src="static/js/jquery-ui.min.js"></script>
 <script>
  function ac(card_id) {
 	 $.ajax({

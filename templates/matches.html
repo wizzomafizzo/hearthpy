@@ -18,8 +18,16 @@
 		  {% for x in opponent_ratios %}
 		  <div class="progress-bar progress-{{ x[0].lower() }}"
 			   style="width: {{ x[1] }}%"
-			   title="{{ x[0] }} ({{ opponent_stats[x[0]]['total'] }})"
-			   data-toggle="tooltip" data-placement="bottom">
+			   title="<strong>{{ x[0] }}</strong><br><br>
+					  <span class='glyphicon glyphicon-ok'></span><br>
+					  {{ opponent_stats[x[0]]['wins'] }}<br><br>
+					  <span class='glyphicon glyphicon-remove'></span><br>
+					  {{ opponent_stats[x[0]]['losses'] }}<br><br>
+					  <span class='glyphicon glyphicon-flag'></span><br>
+					  {{ opponent_stats[x[0]]['total'] }}<br><br>
+					  <span class='glyphicon glyphicon-stats'></span><br>
+					  {{ '{0:0.1f}'.format(opponent_stats[x[0]]['winrate']) }}%"
+			   data-html="true" data-toggle="tooltip" data-placement="bottom">
 		  </div>
 		  {% endfor %}
 		</div>
@@ -35,9 +43,9 @@
 		  </div>
 		  <div class="form-group">
 			<label for="mode">Mode</label>
-			<select class="form-control" name="mode">
+			<select class="form-control chosen-select" name="mode" multiple>
 			  {% for x in modes %}
-			  <option{% if x == mode %} selected{% endif %}>{{ x }}</option>
+			  <option{% if x in mode %} selected{% endif %}>{{ x }}</option>
 			  {% endfor %}
 			</select>
 		  </div>
@@ -48,9 +56,9 @@
 		  </div>
 		  <div class="form-group">
 			<label for="opponent">Opponent</label>
-			<select class="form-control" name="opponent">
+			<select class="form-control chosen-select" name="opponent" multiple>
 			  {% for x in opponents %}
-			  <option{% if x == opponent %} selected{% endif %}>{{ x }}</option>
+			  <option{% if x in opponent %} selected{% endif %}>{{ x }}</option>
 			  {% endfor %}
 			</select>
 		  </div>
@@ -134,7 +142,7 @@
 	  <nav>
 		<ul class="pager">
 		  <li class="previous{% if not prev_pages_left %} disabled{% endif %}">
-			<a href="{% if prev_pages_left %}matches{{ url_args }}&offset={{ prev_offset }}{% else %}#{% endif %}">
+			<a href="{% if prev_pages_left %}matches?{{ prev_url }}{% else %}#{% endif %}">
 			  <span class="glyphicon glyphicon-arrow-left"></span>
 			</a>
 		  </li>
@@ -142,7 +150,7 @@
 			<strong>{{ current_page }}</strong> of <strong>{{ total_pages }}</strong>
 		  </span>
 		  <li class="next{% if not next_pages_left %} disabled{% endif %}">
-			<a href="{% if next_pages_left %}matches{{ url_args }}&offset={{ next_offset }}{% else %}#{% endif %}">
+			<a href="{% if next_pages_left %}matches?{{ next_url }}{% else %}#{% endif %}">
 			  <span class="glyphicon glyphicon-arrow-right"></span>
 			</a>
 		  </li>
@@ -153,7 +161,6 @@
 </div>
 {% endblock %}
 {% block script %}
-<script src="static/js/jquery-ui.min.js"></script>
 <script>
  function fd(name) {
 	 $("#deck-input").val(name);
@@ -164,6 +171,7 @@
 		 dateFormat: "dd/mm/yy",
 		 showAnim: ""
 	 });
+	 $(".chosen-select").chosen()
  });
 </script>
 {% endblock %}
