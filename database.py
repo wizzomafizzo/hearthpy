@@ -97,9 +97,9 @@ def text_search_builder(column, s):
 
     if search_type == "exact":
         if negate:
-            exact_query = "{} not like ?"
+            exact_query = "{} != ?"
         else:
-            exact_query = "{} like ?"
+            exact_query = "{} = ?"
         return {
             "params": ["{}".format(s)],
             "query": exact_query.format(column)
@@ -418,7 +418,7 @@ class Matches():
         names = sorted(self.decks(from_date))
         decks = []
         for x in names:
-            stats = self.stats(self.search(deck=x))
+            stats = self.stats(self.search(deck=("=" + x)))
             stats["deck"] = x
             decks.append(stats)
         return decks
