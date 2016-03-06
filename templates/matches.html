@@ -37,9 +37,11 @@
 		  <div class="form-group">
 			<label>Range</label>
 			<input type="search" class="form-control date-picker"
-				   name="from" placeholder="From" value="{{ from_date }}">
+				   name="from" placeholder="From" value="{{ from_date }}"
+				   pattern="^\d\d/\d\d/\d\d\d\d$">
 			<input type="search" class="form-control date-picker"
-				   name="to" placeholder="To" value="{{ to_date }}">
+				   name="to" placeholder="To" value="{{ to_date }}"
+				   pattern="^\d\d/\d\d/\d\d\d\d$">
 		  </div>
 		  <div class="form-group">
 			<label for="mode">Mode</label>

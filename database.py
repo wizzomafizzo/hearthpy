@@ -171,7 +171,7 @@ def range_search_builder(column, s):
         "query": "{} between ? and ?".format(column)
     }
 
-def options_search_builder(column, os, fuzzy=False):
+def options_search_builder(column, os, fuzzy=False, inclusive=False):
     assert type(column) is str
     assert type(os) is list
     if len(os) == 0:
@@ -187,9 +187,14 @@ def options_search_builder(column, os, fuzzy=False):
         else:
             params.append("{}".format(o))
 
+    if inclusive:
+        query = " and ".join(query_parts)
+    else:
+        query = " or ".join(query_parts)
+
     return {
         "params": params,
-        "query": " or ".join(query_parts)
+        "query": query
     }
 
 def mode_search_builder(modes):
@@ -814,7 +819,8 @@ class Cards():
         if (mechanics is not None and
             type(mechanics) is list and
             "All" not in mechanics):
-            mechanics_search = options_search_builder("mechanics", mechanics)
+            mechanics_search = options_search_builder("mechanics", mechanics,
+                                                      True, True)
             q += "and (" + mechanics_search["query"] + ") "
             for x in mechanics_search["params"]:
                 args.append(x)
@@ -863,7 +869,11 @@ class Cards():
             q += "and owned = ? "
             args.append(owned)
 
-        q += "order by class, cost, name"
+        q += ("order by case class when 'NEUTRAL' then 9 when 'DRUID' then 0 "
+              "when 'HUNTER' then 1 when 'MAGE' then 2 when 'PALADIN' then 3 "
+              "when 'PRIEST' then 4 when 'ROGUE' then 5 when 'SHAMAN' then 6 "
+              "when 'WARLOCK' then 7 when 'WARRIOR' then 8 end, cost, "
+              "case type when 'SPELL' then 0 when 'MINION' then 1 end, name")
 
         if limit is not None:
             assert type(limit) is int
@@ -874,9 +884,6 @@ class Cards():
             assert type(offset) is int
             q += " offset ?"
             args.append(offset)
-
-        print(args)
-        print(q)
 
         c = self.db.cursor()
         c.execute(q, args)
@@ -896,9 +903,23 @@ class Cards():
 
     def types(self):
         c = self.db.cursor()
-        q = "select distinct type from cards"
+        q = "select distinct type from cards order by type"
         c.execute(q)
         return [x[0] for x in c.fetchall()]
+
+    def mechanics(self):
+        c = self.db.cursor()
+        q = "select distinct mechanics from cards"
+        c.execute(q)
+        results = [x[0] for x in c.fetchall()]
+        mechanics = set()
+        for x in results:
+            ms = x.split(",")
+            if ms[0] == "":
+                continue
+            for m in ms:
+                mechanics.add(m)
+        return sorted(list(mechanics))
 
     def missing(self):
         q = ("select * from cards left join collection "

@@ -17,11 +17,10 @@
 		<form method="get">
 		  <div class="form-group">
 			<label for="hero">Class</label>
-			<select id="hero" class="form-control" name="hero">
+			<select id="hero" class="form-control chosen-select"
+					name="hero" multiple>
 			  {% for x in heroes %}
-			  <option{% if x == hero %} selected{% endif %}>
-				{{ x }}
-			  </option>
+			  <option{% if x in hero %} selected{% endif %}>{{ x }}</option>
 			  {% endfor %}
 			</select>
 		  </div>
@@ -60,38 +59,39 @@
 		  </div>
 		  <div class="form-group">
 			<label for="rarity">Rarity</label>
-			<select id="rarity" class="form-control" name="rarity">
+			<select id="rarity" class="form-control chosen-select"
+					name="rarity" multiple>
 			  {% for x in rarities %}
-			  <option{% if x == rarity %} selected{% endif %}>
-				{{ x }}
-			  </option>
+			  <option{% if x in rarity %} selected{% endif %}>{{ x }}</option>
 			  {% endfor %}
 			</select>
 		  </div>
 		  <div class="form-group">
 			<label for="set">Set</label>
-			<select id="set" class="form-control" name="set">
+			<select id="set" class="form-control chosen-select"
+					name="set" multiple>
 			  {% for x in card_sets %}
-			  <option{% if x == card_set %} selected{% endif %}>
-				{{ x }}
-			  </option>
+			  <option{% if x in card_set %} selected{% endif %}>{{ x }}</option>
 			  {% endfor %}
 			</select>
 		  </div>
 		  <div class="form-group">
-			<label for="mode">Type</label>
-			<select class="form-control" name="type">
+			<label for="type">Type</label>
+			<select id="type" class="form-control chosen-select"
+					name="type" multiple>
 			  {% for x in card_types %}
-			  <option{% if x == card_type %} selected{% endif %}>
-				{{ x }}
-			  </option>
+			  <option{% if x in card_type %} selected{% endif %}>{{ x }}</option>
 			  {% endfor %}
 			</select>
 		  </div>
 		  <div class="form-group">
-			<label for="effects">Effects</label>
-			<input id="effects" type="search" class="form-control"
-				   name="effects" value="{{ mechanics }}">
+			<label for="mechanics">Mechanics</label>
+			<select id="mechanics" class="form-control chosen-select"
+					name="mechanics" multiple>
+			  {% for x in mechanics %}
+			  <option{% if x in mechanic %} selected{% endif %}>{{ x }}</option>
+			  {% endfor %}
+			</select>
 		  </div>
 		  <div class="form-group">
 			<label for="notes">Notes</label>
@@ -258,6 +258,7 @@
 	 });
  }
  $(document).ready(function(){
+	 $(".chosen-select").chosen()
 	 $(".accordion").accordion({
 		 event: "click hoverintent",
 		 animate: false,

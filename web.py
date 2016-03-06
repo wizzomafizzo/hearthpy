@@ -269,12 +269,13 @@ def matches():
 
     from_date = request.args.get("from", "")
     to_date = request.args.get("to", "")
-    mode = request.args.getlist("mode")
     deck = request.args.get("deck", "")
-    opponent = request.args.getlist("opponent")
     notes = request.args.get("notes", "")
     outcome = request.args.get("outcome", "")
     offset = request.args.get("offset", "")
+
+    opponent = request.args.getlist("opponent")
+    mode = request.args.getlist("mode")
 
     search = {}
 
@@ -378,17 +379,18 @@ def cards():
 
     name = request.args.get("name", "")
     text = request.args.get("text", "")
-    hero = request.args.get("hero", "")
     mana = request.args.get("mana", "")
     attack = request.args.get("attack", "")
     health = request.args.get("health", "")
-    rarity = request.args.get("rarity", "")
-    card_set = request.args.get("set", "")
-    card_type = request.args.get("type", "")
-    mechanics = request.args.get("effects", "")
     notes = request.args.get("notes", "")
     offset = request.args.get("offset", "")
     missing = request.args.get("missing", "")
+
+    hero = request.args.getlist("hero")
+    rarity = request.args.getlist("rarity")
+    card_set = request.args.getlist("set")
+    card_type = request.args.getlist("type")
+    mechanics = request.args.getlist("mechanics")
 
     if name != "":
         search["name"] = name
@@ -396,7 +398,7 @@ def cards():
     if text != "":
         search["text"] = text
 
-    if hero != "" and hero != "All":
+    if len(hero) > 0 and "All" not in hero:
         search["hero"] = hero
 
     if mana != "":
@@ -408,16 +410,16 @@ def cards():
     if health != "":
         search["health"] = health
 
-    if rarity != "" and rarity != "All":
+    if len(rarity) > 0 and "All" not in rarity:
         search["rarity"] = rarity
 
-    if card_set != "" and card_set != "All":
+    if len(card_set) > 0 and "All" not in card_set:
         search["card_set"] = card_set
 
-    if card_type != "" and card_type != "All":
+    if len(card_type) > 0 and "All" not in card_type:
         search["card_type"] = card_type
 
-    if mechanics != "":
+    if len(mechanics) > 0 and "All" not in mechanics:
         search["mechanics"] = mechanics
 
     if notes != "":
@@ -462,6 +464,7 @@ def cards():
         "rarities": ["All"] + [x.title() for x in c.rarities()],
         "card_sets": ["All"] + [x for x in c.sets()],
         "card_types": ["All"] + [x.title() for x in c.types()],
+        "mechanics": ["All"] + [x.title() for x in c.mechanics()],
         "hero": hero,
         "name": name,
         "text": text,
@@ -471,7 +474,7 @@ def cards():
         "rarity": rarity,
         "card_set": card_set,
         "card_type": card_type,
-        "mechanics": mechanics,
+        "mechanic": mechanics,
         "notes": notes,
         "offset": offset,
         "prev_url": prev_url,
