@@ -540,6 +540,39 @@ class Matches():
 
         return stats
 
+    def recent_mode_input(self):
+        modes = list(reversed(config.modes))
+        modes.remove("Casual")
+
+        current_index = modes.index(self.current_rank())
+        current_rank = modes[current_index]
+
+        if current_rank != "Rank 25":
+            prev_rank = modes[current_index - 1]
+        else:
+            prev_rank = None
+        if current_rank != "Legend":
+            next_rank = modes[current_index + 1]
+        else:
+            next_rank = None
+
+        if prev_rank is not None:
+            modes.remove(prev_rank)
+        modes.remove(current_rank)
+        if next_rank is not None:
+            modes.remove(next_rank)
+
+        modes.insert(0, False)
+        modes.insert(0, "Casual")
+
+        if next_rank is not None:
+            modes.insert(0, next_rank)
+        modes.insert(0, current_rank)
+        if prev_rank is not None:
+            modes.insert(0, prev_rank)
+
+        return modes
+
 
 class Cards():
     def __init__(self, db):

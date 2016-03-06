@@ -212,7 +212,7 @@ def index():
             gs["worst_deck"] = worst_deck
 
     args = {
-        "modes": reversed(config.modes),
+        "modes": m.recent_mode_input(),
         "heroes": config.heroes,
         "deck_template": config.deck_template,
         "deck_stats": [format_winrate(x) for x in deck_stats],

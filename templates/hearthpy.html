@@ -11,9 +11,11 @@
 			  <div class="form-group-match">
 				<select class="form-control" name="mode">
 				  {% for mode in modes %}
-				  <option{% if active_mode == mode %} selected{% endif %}>
-					{{ mode }}
-				  </option>
+				  {% if not mode %}
+				  <option disabled></option>
+				  {% else %}
+				  <option{% if active_mode == mode %} selected{% endif %}>{{ mode }}</option>
+				  {% endif %}
 				  {% endfor %}
 				</select>
 				<input type="text"
