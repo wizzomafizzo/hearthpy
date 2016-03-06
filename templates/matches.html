@@ -52,7 +52,7 @@
 			</select>
 		  </div>
 		  <div class="form-group">
-			<label for="deck">Deck</label>
+			<label for="deck">Deck</label>{% include "ops-help.html" %}
 			<input id="deck-input" type="search" class="form-control"
 				   name="deck" value="{{ deck }}">
 		  </div>
@@ -65,7 +65,7 @@
 			</select>
 		  </div>
 		  <div class="form-group">
-			<label for="notes">Notes</label>
+			<label for="notes">Notes</label>{% include "ops-help.html" %}
 			<input type="search" class="form-control"
 				   name="notes" value="{{ notes }}">
 		  </div>
@@ -173,7 +173,7 @@
 		 dateFormat: "dd/mm/yy",
 		 showAnim: ""
 	 });
-	 $(".chosen-select").chosen()
+	 $(".chosen-select").chosen({placeholder_text_multiple: "Select options..."})
  });
 </script>
 {% endblock %}

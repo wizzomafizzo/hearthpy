@@ -22,6 +22,7 @@
 					   placeholder="Deck"
 					   name="deck"
 					   autocorrect="off"
+					   pattern="{{ deck_template }}"
 					   value="{{ active_deck }}">
 				<div class="versus">VS</div>
 				<select class="form-control" name="opponent">
@@ -206,7 +207,7 @@
 			</table>
 			{% endif %}
 			<span class="info-icon glyphicon glyphicon-info-sign"
-				  title="Recent Decks" data-toggle="tooltip"
+				  title="Recently Played Decks" data-toggle="tooltip"
 				  data-placement="left"></span>
 		  </div>
 		</div>
@@ -475,7 +476,7 @@
 			  </div>
 			</div>
 			<span class="info-icon glyphicon glyphicon-info-sign"
-				  title="Opponent Stats" data-toggle="tooltip"
+				  title="Encountered Opponent Stats" data-toggle="tooltip"
 				  data-placement="left"></span>
 		  </div>
 		</div>

@@ -214,6 +214,7 @@ def index():
     args = {
         "modes": reversed(config.modes),
         "heroes": config.heroes,
+        "deck_template": config.deck_template,
         "deck_stats": [format_winrate(x) for x in deck_stats],
         "season_stats": format_winrate(season_stats),
         "season_rank": mode_icon({"mode": m.current_rank()}),
