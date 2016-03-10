@@ -163,11 +163,7 @@ def index():
                    form_deck != "" and
                    form_opponent != "" and
                    form_outcome != "")
-        if form_outcome == "win":
-            outcome = True
-        else:
-            outcome = False
-
+        outcome = form_outcome == "win"
         if not can_add:
             submit_error = "Missing match values in form"
         elif not valid_deck_name(form_deck):

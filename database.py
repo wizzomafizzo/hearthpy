@@ -47,11 +47,6 @@ def a_month_ago():
     return today - timedelta(31)
 
 
-def decks_shown_date():
-    today = datetime.now()
-    return today - timedelta(config.decks_shown)
-
-
 def read_date(date):
     return datetime(*time.strptime(date, "%d/%m/%Y")[0:6])
 
@@ -67,7 +62,7 @@ def winrate(total, wins):
         return (wins * 100) / total
 
 
-def import_old_matches(db, export_filename):
+def import_old_matches(export_filename):
     system_epoch = datetime.date(*time.gmtime(0)[0:3])
     ntp_epoch = datetime.date(1900, 1, 1)
     ntp_delta = (system_epoch - ntp_epoch).days * 24 * 3600
@@ -286,10 +281,7 @@ class Matches():
         return c.fetchone()
 
     def read(self, match):
-        if match[6] == 1:
-            outcome = True
-        else:
-            outcome = False
+        outcome = match[6] == 1
         return {
             "id": match[0],
             "date": match[1],
@@ -453,7 +445,7 @@ class Matches():
         daily = []
         for x in range(days):
             delta = timedelta(x)
-            matches = self.search(start - delta, end - delta)
+            matches = self.search(start - delta, end - delta, deck=deck)
             stats = self.stats(matches)
             stats["date"] = start - delta
             daily.append(stats)

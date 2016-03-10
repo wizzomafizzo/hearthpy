@@ -90,8 +90,7 @@ def import_collection(filename):
 
 def import_old_matches(filename):
     print("Importing old matches backup")
-    db = database.db
-    imported = database.import_old_matches(db, filename)
+    imported = database.import_old_matches(filename)
     print("Imported {} matches".format(imported))
 
 
