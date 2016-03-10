@@ -463,6 +463,12 @@ table td {
 	opacity: 0.4;
 }
 
+.card-info-icon {
+	margin-left: 5px;
+    margin-bottom: 5px;
+	float: right;
+}
+
 .tt-lrg.tooltip-inner {
     min-width: 220px;
 }

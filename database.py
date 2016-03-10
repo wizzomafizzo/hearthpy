@@ -202,8 +202,6 @@ def mode_search_builder(modes):
 
     if len(modes) == 0:
         return
-    elif "All" in modes:
-        return
     elif "Ranked" in modes and "Casual" in modes:
         return
     elif "Ranked" in modes and "Casual" not in modes:
@@ -328,30 +326,28 @@ class Matches():
         args = [from_date, to_date]
 
         # deck
-        if deck is not None:
+        if type(deck) is str:
             deck_search = text_search_builder("deck", deck)
             q += "and (" + deck_search["query"] + ") "
             for x in deck_search["params"]:
                 args.append(x)
 
         # notes
-        if notes is not None:
+        if type(notes) is str:
             notes_search = text_search_builder("notes", notes)
             q += "and (" + notes_search["query"] + ") "
             for x in notes_search["params"]:
                 args.append(x)
 
         # opponent
-        if (opponent is not None and
-            type(opponent) is list and
-            "All" not in opponent):
+        if type(opponent) is list:
             opponent_search = options_search_builder("opponent", opponent)
             q += "and (" + opponent_search["query"] + ") "
             for x in opponent_search["params"]:
                 args.append(x)
 
         # mode
-        if mode is not None:
+        if type(mode) is list:
             mode_search = mode_search_builder(mode)
             q += "and (" + mode_search["query"] + ") "
             for x in mode_search["params"]:
@@ -815,9 +811,7 @@ class Cards():
              "cards.card_id = collection.card_id where ")
         args = []
 
-        if (hero is not None and
-            type(hero) is list and
-            "All" not in hero):
+        if type(hero) is list:
             hero_search = options_search_builder("class", hero)
             q += "(" + hero_search["query"] + ") "
             for x in hero_search["params"]:
@@ -825,80 +819,71 @@ class Cards():
         else:
             q += "class like '%' "
 
-        if (rarity is not None and
-            type(rarity) is list and
-            "All" not in rarity):
+        if type(rarity) is list:
             rarity_search = options_search_builder("rarity", rarity)
             q += "and (" + rarity_search["query"] + ") "
             for x in rarity_search["params"]:
                 args.append(x)
 
-        if (card_set is not None and
-            type(card_set) is list and
-            "All" not in card_set):
+        if type(card_set) is list:
             card_set_search = options_search_builder("card_set", card_set)
             q += "and (" + card_set_search["query"] + ") "
             for x in card_set_search["params"]:
                 args.append(x)
 
-        if (card_type is not None and
-            type(card_type) is list and
-            "All" not in card_type):
+        if type(card_type) is list:
             card_type_search = options_search_builder("type", card_type)
             q += "and (" + card_type_search["query"] + ") "
             for x in card_type_search["params"]:
                 args.append(x)
 
-        if (mechanics is not None and
-            type(mechanics) is list and
-            "All" not in mechanics):
+        if type(mechanics) is list:
             mechanics_search = options_search_builder("mechanics", mechanics,
                                                       True, True)
             q += "and (" + mechanics_search["query"] + ") "
             for x in mechanics_search["params"]:
                 args.append(x)
 
-        if name is not None:
+        if type(name) is str:
             name_search = text_search_builder("name", name)
             q += "and (" + name_search["query"] + ") "
             for x in name_search["params"]:
                 args.append(x)
 
-        if text is not None:
+        if type(text) is str:
             text_search = text_search_builder("card_text", text)
             q += "and (" + text_search["query"] + ") "
             for x in text_search["params"]:
                 args.append(x)
 
-        if notes is not None:
+        if type(notes) is str:
             notes_search = text_search_builder("notes", notes)
             q += "and (" + notes_search["query"] + ") "
             for x in notes_search["params"]:
                 args.append(x)
 
-        if cost is not None:
+        if type(cost) is str:
             cost_search = range_search_builder("cost", cost)
             if cost_search is not None:
                 q += "and " + cost_search["query"] + " "
                 for x in cost_search["params"]:
                     args.append(x)
 
-        if attack is not None:
+        if type(attack) is str:
             attack_search = range_search_builder("attack", attack)
             if attack_search is not None:
                 q += "and " + attack_search["query"] + " "
                 for x in attack_search["params"]:
                     args.append(x)
 
-        if health is not None:
+        if type(health) is str:
             health_search = range_search_builder("health", health)
             if health_search is not None:
                 q += "and " + health_search["query"] + " "
                 for x in health_search["params"]:
                     args.append(x)
 
-        if owned is not None:
-            assert type(owned) is int
+        if type(owned) is int:
             q += "and owned = ? "
             args.append(owned)
 
@@ -908,12 +893,11 @@ class Cards():
               "when 'WARLOCK' then 7 when 'WARRIOR' then 8 end, cost, "
               "case type when 'SPELL' then 0 when 'MINION' then 1 end, name")
 
-        if limit is not None:
-            assert type(limit) is int
+        if type(limit) is int:
             q += " limit ?"
             args.append(limit)
 
-        if offset is not None:
+        if type(offset) is int:
             assert type(offset) is int
             q += " offset ?"
             args.append(offset)

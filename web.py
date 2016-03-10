@@ -175,7 +175,7 @@ def index():
         active_mode = m.last_mode()
 
     if active_deck != "":
-        deck = active_deck
+        deck = "=" + active_deck
     else:
         deck = None
 
@@ -298,13 +298,13 @@ def matches():
     else:
         search["to_date"] = None
 
-    if len(mode) > 0 and "All" not in mode:
+    if len(mode) > 0:
         search["mode"] = mode
 
     if deck != "":
         search["deck"] = deck
 
-    if len(opponent) > 0 and "All" not in opponent:
+    if len(opponent) > 0:
         search["opponent"] = opponent
 
     if notes != "":
@@ -346,8 +346,8 @@ def matches():
 
     args = {
         "matches": matches[offset:offset + config.match_limit],
-        "modes": ["All", "Ranked"] + list(reversed(config.modes)),
-        "opponents": ["All"] + config.heroes,
+        "modes": ["Ranked"] + list(reversed(config.modes)),
+        "opponents": config.heroes,
         "from_date": from_date,
         "to_date": to_date,
         "mode": mode,
@@ -399,7 +399,7 @@ def cards():
     if text != "":
         search["text"] = text
 
-    if len(hero) > 0 and "All" not in hero:
+    if len(hero) > 0:
         search["hero"] = hero
 
     if mana != "":
@@ -411,16 +411,16 @@ def cards():
     if health != "":
         search["health"] = health
 
-    if len(rarity) > 0 and "All" not in rarity:
+    if len(rarity) > 0:
         search["rarity"] = rarity
 
-    if len(card_set) > 0 and "All" not in card_set:
+    if len(card_set) > 0:
         search["card_set"] = card_set
 
-    if len(card_type) > 0 and "All" not in card_type:
+    if len(card_type) > 0:
         search["card_type"] = card_type
 
-    if len(mechanics) > 0 and "All" not in mechanics:
+    if len(mechanics) > 0:
         search["mechanics"] = mechanics
 
     if notes != "":
@@ -461,11 +461,11 @@ def cards():
     args = {
         "cards": [format_card(x) for x in
                   cards[offset:offset + config.card_limit]],
-        "heroes": ["All", "Neutral"] + config.heroes,
-        "rarities": ["All"] + [x.title() for x in c.rarities()],
-        "card_sets": ["All"] + [x for x in c.sets()],
-        "card_types": ["All"] + [x.title() for x in c.types()],
-        "mechanics": ["All"] + [x.title() for x in c.mechanics()],
+        "heroes": ["Neutral"] + config.heroes,
+        "rarities": [x.title() for x in c.rarities()],
+        "card_sets": [x for x in c.sets()],
+        "card_types": [x.title() for x in c.types()],
+        "mechanics": [x.title() for x in c.mechanics()],
         "hero": hero,
         "name": name,
         "text": text,
