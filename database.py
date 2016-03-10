@@ -12,48 +12,60 @@ db = sqlite3.connect(config.db_filename,
                      detect_types=sqlite3.PARSE_DECLTYPES,
                      check_same_thread=False)
 
+
 def now():
     return datetime.now()
+
 
 def start_of_today():
     today = datetime.now()
     return datetime(today.year, today.month, today.day)
 
+
 def end_of_today():
     today = datetime.now()
     return datetime(today.year, today.month, today.day, 23, 59, 59)
+
 
 def start_of_month():
     today = datetime.now()
     return datetime(today.year, today.month, 1)
 
+
 def a_day_ago():
     today = datetime.now()
     return today - timedelta(1)
+
 
 def a_week_ago():
     today = datetime.now()
     return today - timedelta(7)
 
+
 def a_month_ago():
     today = datetime.now()
     return today - timedelta(31)
+
 
 def decks_shown_date():
     today = datetime.now()
     return today - timedelta(config.decks_shown)
 
+
 def read_date(date):
     return datetime(*time.strptime(date, "%d/%m/%Y")[0:6])
 
+
 def end_of_day(date):
     return date + timedelta(hours=23, minutes=59)
+
 
 def winrate(total, wins):
     if wins == 0 or total == 0:
         return 0
     else:
         return (wins * 100) / total
+
 
 def import_old_matches(db, export_filename):
     system_epoch = datetime.date(*time.gmtime(0)[0:3])
@@ -69,6 +81,7 @@ def import_old_matches(db, export_filename):
         total += 1
     db.commit()
     return total
+
 
 def text_search_builder(column, s):
     assert type(column) is str
@@ -126,6 +139,7 @@ def text_search_builder(column, s):
         "query": query
     }
 
+
 def range_search_builder(column, s):
     assert type(column) is str
     assert type(s) is str
@@ -171,6 +185,7 @@ def range_search_builder(column, s):
         "query": "{} between ? and ?".format(column)
     }
 
+
 def options_search_builder(column, os, fuzzy=False, inclusive=False):
     assert type(column) is str
     assert type(os) is list
@@ -196,6 +211,7 @@ def options_search_builder(column, os, fuzzy=False, inclusive=False):
         "params": params,
         "query": query
     }
+
 
 def mode_search_builder(modes):
     assert type(modes) is list
@@ -363,8 +379,8 @@ class Matches():
         q += "order by date desc"
 
         if limit is not None:
-             q += " limit ?"
-             args.append(limit)
+            q += " limit ?"
+            args.append(limit)
 
         c = self.db.cursor()
         c.execute(q, args)
@@ -527,9 +543,12 @@ class Matches():
         stats["best_deck"] = deck_winrate[0]
         stats["worst_deck"] = deck_winrate[-1]
         stats["most_seen_class"] = (opponent_total[0][0], opponent_total[0][1])
-        stats["least_seen_class"] = (opponent_total[-1][0], opponent_total[-1][1])
-        stats["best_seen_class"] = (opponent_winrate[0][0], opponent_winrate[0][2])
-        stats["worst_seen_class"] = (opponent_winrate[-1][0], opponent_winrate[-1][2])
+        stats["least_seen_class"] = (opponent_total[-1][0],
+                                     opponent_total[-1][1])
+        stats["best_seen_class"] = (opponent_winrate[0][0],
+                                    opponent_winrate[0][2])
+        stats["worst_seen_class"] = (opponent_winrate[-1][0],
+                                     opponent_winrate[-1][2])
         stats["best_rank"] = self.best_rank()
         stats["most_played_class"] = heroes_played[0]
         stats["least_played_class"] = heroes_played[-1]

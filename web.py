@@ -1,7 +1,6 @@
 # hearthpy web
 
 import re
-import sys
 import urllib.parse
 from functools import wraps
 
@@ -31,6 +30,7 @@ app = Flask(__name__)
 re_deck_name = re.compile(config.deck_template)
 credentials = None
 
+
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -39,6 +39,7 @@ def requires_auth(f):
         else:
             return login()
     return decorated
+
 
 def format_winrate(stats):
     if stats["winrate"] > config.winrate_tiers[1]:
@@ -49,6 +50,7 @@ def format_winrate(stats):
         stats["label"] = "danger"
     return stats
 
+
 def format_opponents(stats):
     formatted = []
     for x in config.heroes:
@@ -57,6 +59,7 @@ def format_opponents(stats):
         formatted.append(opponent)
     return sorted(formatted, key=lambda x: x["winrate"],
                   reverse=False)
+
 
 def format_matches(matches):
     formatted = []
@@ -67,6 +70,7 @@ def format_matches(matches):
             x["label"] = "danger"
         formatted.append(x)
     return formatted
+
 
 def opponent_ratios(opponents):
     total = sum([x["total"] for x in opponents.values()])
@@ -79,6 +83,7 @@ def opponent_ratios(opponents):
         ratios.append((x, percentage))
     return sorted(ratios, key=lambda x: x[1], reverse=True)
 
+
 def hero_icon(stats):
     name = stats["deck"]
     short_hero = name[0:2]
@@ -89,10 +94,12 @@ def hero_icon(stats):
     stats["hero_icon"] = icon
     return stats
 
+
 def mode_icon(match):
     mode = match["mode"]
-    match["mode_icon"] = mode.lower().replace(" ","")
+    match["mode_icon"] = mode.lower().replace(" ", "")
     return match
+
 
 def format_card(card):
     card["class"] = card["class"].title()
@@ -101,15 +108,18 @@ def format_card(card):
     card["mechanics"] = ", ".join([x.title() for x in card["mechanics"]])
     return card
 
+
 def valid_deck_name(name):
     return re.match(re_deck_name, name)
 
+
 def is_int(value):
-  try:
-    int(value)
-    return True
-  except ValueError:
-    return False
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
+
 
 def update_query_offset(query, offset):
     old_args = urllib.parse.parse_qsl(query)
@@ -130,6 +140,7 @@ def update_query_offset(query, offset):
         new_args.append(("offset", offset))
 
     return urllib.parse.urlencode(new_args)
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -247,6 +258,7 @@ def index():
 
     return render_template("hearthpy.html", **args)
 
+
 @app.route("/remove")
 @requires_auth
 def remove_match():
@@ -263,6 +275,7 @@ def remove_match():
                            match_id=match_id,
                            match=match,
                            removed=removed)
+
 
 @app.route("/matches")
 def matches():
@@ -315,7 +328,8 @@ def matches():
     elif outcome == "lose":
         search["outcome"] = False
 
-    matches = [mode_icon(hero_icon(x)) for x in format_matches(m.search(**search))]
+    matches = [mode_icon(hero_icon(x)) for x in
+               format_matches(m.search(**search))]
 
     if len(matches) > 0:
         total = m.total_in_range(search["from_date"], search["to_date"])
@@ -372,6 +386,7 @@ def matches():
     }
 
     return render_template("matches.html", **args)
+
 
 @app.route("/cards")
 def cards():
@@ -496,11 +511,13 @@ def cards():
 
     return render_template("cards.html", **args)
 
+
 @app.route("/add_card/<card_id>")
 @requires_auth
 def add_card(card_id):
     c = Cards(db)
     return str(c.add_owned(card_id))
+
 
 @app.route("/remove_card/<card_id>")
 @requires_auth
@@ -508,11 +525,13 @@ def remove_card(card_id):
     c = Cards(db)
     return str(c.remove_owned(card_id))
 
+
 @app.route("/set_notes/<card_id>/<notes>")
 @requires_auth
 def set_notes(card_id, notes):
     c = Cards(db)
     return str(c.set_notes(card_id, notes))
+
 
 @app.route("/matches.json")
 @requires_auth
@@ -523,6 +542,7 @@ def export_matches():
                     status=200,
                     mimetype="application/json")
 
+
 @app.route("/collection.json")
 @requires_auth
 def export_collection():
@@ -532,16 +552,18 @@ def export_collection():
                     status=200,
                     mimetype="application/json")
 
+
 @app.route("/logout")
 @requires_auth
 def logout():
     session.pop("username", None)
     return render_template("logout.html")
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     login_failed = False
-    if not "username" in session and request.method == "POST":
+    if "username" not in session and request.method == "POST":
         username = request.form.get("username", "")
         password = request.form.get("password", "")
         authed = (username == credentials["username"] and

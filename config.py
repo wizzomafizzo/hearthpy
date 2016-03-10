@@ -6,7 +6,7 @@ port = 5000
 match_limit = 20
 front_match_limit = 21
 card_limit = 24
-winrate_tiers = [50, 55] # %
+winrate_tiers = [50, 55]  # %
 min_games_deck = 20
 
 deck_template = "^(Dd|Hr|Me|Pn|Pt|Re|Sn|Wk|Wr) .+ \d+\.\d+$"

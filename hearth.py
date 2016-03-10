@@ -12,6 +12,7 @@ import web
 import database
 from web import app
 
+
 def get_credentials():
     try:
         fp = open(config.auth_filename, "rb")
@@ -19,6 +20,7 @@ def get_credentials():
     except FileNotFoundError:
         return False
     return credentials
+
 
 def setup_credentials():
     credentials = {}
@@ -34,6 +36,7 @@ def setup_credentials():
     pickle.dump(credentials, fp)
     print("Credentials stored in: {}".format(config.auth_filename))
 
+
 def setup_database():
     print("Setting up database")
     db = database.db
@@ -44,6 +47,7 @@ def setup_database():
     print("Setting up cards table")
     c.init_db()
     print("Database setup complete")
+
 
 def backup_database():
     print("Backing up database")
@@ -62,6 +66,7 @@ def backup_database():
     print("Backed up collection: {}".format(collection_filename))
     print("Database backup complete")
 
+
 def import_matches(filename):
     print("Importing matches backup")
     fp = open(filename, encoding="utf-8")
@@ -70,6 +75,7 @@ def import_matches(filename):
     matches = json.load(fp)
     imported = m.import_backup(matches)
     print("Imported {} matches".format(imported))
+
 
 def import_collection(filename):
     print("Importing collection backup")
@@ -81,11 +87,13 @@ def import_collection(filename):
     print("Imported {} cards, skipped {}".format(imported[0],
                                                  imported[1]))
 
+
 def import_old_matches(filename):
     print("Importing old matches backup")
     db = database.db
     imported = database.import_old_matches(db, filename)
     print("Imported {} matches".format(imported))
+
 
 def update_cards():
     if os.path.isfile("data/cards.json"):
@@ -100,9 +108,11 @@ def update_cards():
     imported = c.import_cards("data/cards.json")
     print("Imported {} cards".format(imported))
 
+
 def setup():
     setup_credentials()
     setup_database()
+
 
 def run():
     credentials = get_credentials()
@@ -114,9 +124,12 @@ def run():
     web.app.secret_key = credentials["secret_key"]
     web.app.run(port=config.port, debug=True)
 
+
 def show_help():
     print("Commands:")
-    print("run, setup, backup, update_cards, import_matches, import_collection")
+    print("run, setup, backup, update_cards,"
+          " import_matches, import_collection")
+
 
 credentials = get_credentials()
 if credentials:
