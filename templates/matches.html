@@ -44,6 +44,18 @@
 				   pattern="^\d\d/\d\d/\d\d\d\d$">
 		  </div>
 		  <div class="form-group">
+			<label for="format">Format</label><br>
+			<label class="radio-inline">
+			  <input type="radio" name="format" value="all" checked> All
+			</label>
+			<label class="radio-inline">
+			  <input type="radio" name="format" value="standard"{% if card_format == 'standard' %} checked{% endif %}> Standard
+			</label>
+			<label class="radio-inline">
+			  <input type="radio" name="format" value="wild"{% if card_format == 'wild' %} checked{% endif %}> Wild
+			</label>
+		  </div>
+		  <div class="form-group">
 			<label for="mode">Mode</label>
 			<select class="form-control chosen-select" name="mode" multiple>
 			  {% for x in modes %}

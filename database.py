@@ -12,6 +12,12 @@ db = sqlite3.connect(config.db_filename,
                      detect_types=sqlite3.PARSE_DECLTYPES,
                      check_same_thread=False)
 
+class_order = ("order by case class when 'NEUTRAL' then 9 when 'DRUID' then 0 "
+               "when 'HUNTER' then 1 when 'MAGE' then 2 when 'PALADIN' then 3 "
+               "when 'PRIEST' then 4 when 'ROGUE' then 5 when 'SHAMAN' then 6 "
+               "when 'WARLOCK' then 7 when 'WARRIOR' then 8 end, cost, "
+               "case type when 'SPELL' then 0 when 'MINION' then 1 end, name")
+
 
 def now():
     return datetime.now()
@@ -223,6 +229,15 @@ def mode_search_builder(modes):
     else:
         return options_search_builder("mode", modes)
 
+def standard_search_builder():
+    assert type(config.standard_sets) is list
+    packs = config.standard_sets
+
+    if len(packs) == 0:
+        return
+    else:
+        return options_search_builder("card_set", packs)
+
 
 class Matches():
     def __init__(self, db):
@@ -315,9 +330,9 @@ class Matches():
         self.db.commit()
         return total
 
-    def search(self, from_date=None, to_date=None,
-               mode=None, deck=None, opponent=None,
-               notes=None, outcome=None, limit=None):
+    def search(self, from_date=None, to_date=None, mode=None,
+               deck=None, opponent=None, notes=None, outcome=None,
+               card_format=None, limit=None):
         q = "select rowid,* from matches where date between ? and ? "
 
         # from_date
@@ -360,6 +375,13 @@ class Matches():
             q += "and (" + mode_search["query"] + ") "
             for x in mode_search["params"]:
                 args.append(x)
+
+        # format
+        if type(card_format) is str:
+            if card_format == "Standard":
+                q += "and deck like 'S__ %' "
+            elif card_format == "Wild":
+                q += "and deck like 'W__ %' "
 
         # outcome
         if outcome is not None:
@@ -500,8 +522,13 @@ class Matches():
             heroes_tally[x] = 0
 
         for x in matches:
-            hero = x["deck"][0:2]
-            heroes_tally[hero] += 1
+            # TODO: remove pre-format support at some point
+            hero = x["deck"][1:3]
+            old_hero = x["deck"][0:2]
+            if hero in config.heroes_abbrv.keys():
+                heroes_tally[hero] += 1
+            else:
+                heroes_tally[old_hero] += 1
 
         heroes = [(config.heroes_abbrv[x], heroes_tally[x])
                   for x in heroes_tally.keys()]
@@ -813,11 +840,10 @@ class Cards():
         self.db.commit()
         return [added, skipped]
 
-    def search(self, name=None, text=None, rarity=None,
-               card_type=None, cost=None, attack=None,
-               health=None, card_set=None, mechanics=None,
-               hero=None, owned=None, notes=None,
-               limit=None, offset=None):
+    def search(self, name=None, text=None, rarity=None, card_type=None,
+               cost=None, attack=None, health=None, card_set=None,
+               mechanics=None, hero=None, owned=None, notes=None,
+               card_format=None, limit=None, offset=None):
         q = ("select * from cards left join collection on "
              "cards.card_id = collection.card_id where ")
         args = []
@@ -894,15 +920,18 @@ class Cards():
                 for x in health_search["params"]:
                     args.append(x)
 
+        if card_format == "Standard":
+            standard_search = standard_search_builder()
+            if standard_search is not None:
+                q += "and " + standard_search["query"] + " "
+                for x in standard_search["params"]:
+                    args.append(x)
+
         if type(owned) is int:
             q += "and owned = ? "
             args.append(owned)
 
-        q += ("order by case class when 'NEUTRAL' then 9 when 'DRUID' then 0 "
-              "when 'HUNTER' then 1 when 'MAGE' then 2 when 'PALADIN' then 3 "
-              "when 'PRIEST' then 4 when 'ROGUE' then 5 when 'SHAMAN' then 6 "
-              "when 'WARLOCK' then 7 when 'WARRIOR' then 8 end, cost, "
-              "case type when 'SPELL' then 0 when 'MINION' then 1 end, name")
+        q += class_order
 
         if type(limit) is int:
             q += " limit ?"
@@ -952,7 +981,8 @@ class Cards():
     def missing(self):
         q = ("select * from cards left join collection "
              "on cards.card_id = collection.card_id where "
-             "owned < 2 order by class, cost, name")
+             "owned < 2 ")
+        q += class_order
         c = self.db.cursor()
         c.execute(q)
         cards = c.fetchall()

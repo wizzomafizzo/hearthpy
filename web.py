@@ -85,10 +85,14 @@ def opponent_ratios(opponents):
 
 
 def hero_icon(stats):
+    # TODO: remove pre-format support at some point
     name = stats["deck"]
-    short_hero = name[0:2]
+    short_hero = name[1:3]
+    old_short_hero = name[0:2]
     if short_hero in config.heroes_abbrv.keys():
         icon = config.heroes_abbrv[short_hero].lower()
+    elif old_short_hero in config.heroes_abbrv.keys():
+        icon = config.heroes_abbrv[old_short_hero].lower()
     else:
         icon = "unknown"
     stats["hero_icon"] = icon
@@ -189,7 +193,14 @@ def index():
     matches = [mode_icon(hero_icon(x)) for x in
                m.search(limit=config.front_match_limit, deck=deck)]
     deck_stats = [hero_icon(x) for x in m.deck_stats(a_month_ago())]
-    season_stats = m.stats(m.search(start_of_month(), mode=["Ranked"]))
+    season_stats = {
+        "standard": m.stats(m.search(start_of_month(),
+                                     mode=["Ranked"],
+                                     card_format="Standard")),
+        "wild": m.stats(m.search(start_of_month(),
+                                 mode=["Ranked"],
+                                 card_format="Wild"))
+    }
     overall_stats = [m.stats(m.search(a_day_ago(), deck=deck, limit=None)),
                      m.stats(m.search(a_week_ago(), deck=deck, limit=None)),
                      m.stats(m.search(a_month_ago(), deck=deck, limit=None)),
@@ -223,7 +234,8 @@ def index():
         "heroes": config.heroes,
         "deck_template": config.deck_template,
         "deck_stats": [format_winrate(x) for x in deck_stats],
-        "season_stats": format_winrate(season_stats),
+        "standard_season_stats": format_winrate(season_stats["standard"]),
+        "wild_season_stats": format_winrate(season_stats["wild"]),
         "season_rank": mode_icon({"mode": m.current_rank()}),
         "overall_stats": [format_winrate(x) for x in overall_stats],
         "opponent_stats": {
@@ -283,6 +295,7 @@ def matches():
     notes = request.args.get("notes", "")
     outcome = request.args.get("outcome", "")
     offset = request.args.get("offset", "")
+    card_format = request.args.get("format", "")
 
     opponent = request.args.getlist("opponent")
     mode = request.args.getlist("mode")
@@ -324,6 +337,11 @@ def matches():
     elif outcome == "lose":
         search["outcome"] = False
 
+    if card_format == "standard":
+        search["card_format"] = "Standard"
+    elif card_format == "wild":
+        search["card_format"] = "Wild"
+
     matches = [mode_icon(hero_icon(x)) for x in
                format_matches(m.search(**search))]
 
@@ -362,6 +380,7 @@ def matches():
         "to_date": to_date,
         "mode": mode,
         "deck": deck,
+        "card_format": card_format,
         "opponent": opponent,
         "opponent_stats": opponent_stats,
         "opponent_ratios": opponent_ratios(opponent_stats),
@@ -426,7 +445,11 @@ def cards():
         search["rarity"] = rarity
 
     if len(card_set) > 0:
-        search["card_set"] = card_set
+        if "Standard" in card_set:
+            search["card_format"] = "Standard"
+        sets_only = [x for x in card_set if x != "Standard"]
+        if len(sets_only) > 0:
+            search["card_set"] = sets_only
 
     if len(card_type) > 0:
         search["card_type"] = card_type
@@ -453,7 +476,8 @@ def cards():
     dust_needed = c.dust_needed()
     if len(dust_needed.keys()) > 0:
         packs = sorted(list(dust_needed.items()), key=lambda x: x[0])
-        buy_pack = sorted(packs, key=lambda x: x[1], reverse=True)[0][0]
+        standard_packs = [x for x in packs if x[0] in config.standard_sets]
+        buy_pack = sorted(standard_packs, key=lambda x: x[1], reverse=True)[0][0]
     else:
         packs = []
         buy_pack = None
@@ -474,7 +498,7 @@ def cards():
                   cards[offset:offset + config.card_limit]],
         "heroes": ["Neutral"] + config.heroes,
         "rarities": [x.title() for x in c.rarities()],
-        "card_sets": [x for x in c.sets()],
+        "card_sets": ["Standard"] + [x for x in c.sets()],
         "card_types": [x.title() for x in c.types()],
         "mechanics": [x.title() for x in c.mechanics()],
         "hero": hero,
