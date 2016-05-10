@@ -15,8 +15,7 @@ db = sqlite3.connect(config.db_filename,
 class_order = ("order by case class when 'NEUTRAL' then 9 when 'DRUID' then 0 "
                "when 'HUNTER' then 1 when 'MAGE' then 2 when 'PALADIN' then 3 "
                "when 'PRIEST' then 4 when 'ROGUE' then 5 when 'SHAMAN' then 6 "
-               "when 'WARLOCK' then 7 when 'WARRIOR' then 8 end, cost, "
-               "case type when 'SPELL' then 0 when 'MINION' then 1 end, name")
+               "when 'WARLOCK' then 7 when 'WARRIOR' then 8 end, cost, name")
 
 
 def now():
