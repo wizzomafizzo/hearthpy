@@ -524,6 +524,10 @@ table td {
     width: 25px;
     height: 25px
 }
+.icon-free {
+	width: 25px;
+	height: 25px;
+}
 
 .progress-mage { background-color: #00bede; background-image: none; }
 .progress-warrior { background-color: #c01603; background-image: none; }
