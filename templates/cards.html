@@ -155,6 +155,22 @@
 			  <span class="card-health-icon" title="Health" data-toggle="tooltip">
 			  </span><span class="card-header">{{ card.health }}</span>
 			  {% endif %}
+			  {% if card.type == "Minion" %}
+			  <span class="card-header card-header-type">
+				<span class="glyphicon glyphicon-knight"
+					  title="Minion" data-toggle="tooltip"></span>
+			  </span>
+			  {% elif card.type == "Spell" %}
+			  <span class="card-header card-header-type">
+				<span class="glyphicon glyphicon-flash"
+					  title="Spell" data-toggle="tooltip"></span>
+			  </span>
+			  {% elif card.type == "Weapon" %}
+			  <span class="card-header card-header-type">
+				<span class="glyphicon glyphicon-wrench"
+					  title="Weapon" data-toggle="tooltip"></span>
+			  </span>
+			  {% endif %}
 			</span>
 		  </h3>
 		  <div class="card-content">

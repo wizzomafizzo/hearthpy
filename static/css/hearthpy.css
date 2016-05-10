@@ -325,6 +325,10 @@ table td {
 	font-weight: bold;
 }
 
+.card-header-type {
+	margin-left: 2em;
+}
+
 .card-name {
 	position: relative;
 	top: 0;
