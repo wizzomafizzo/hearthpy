@@ -200,9 +200,15 @@
 				  <td><span>{{ deck.wins }}</span></td>
 				  <td><span>{{ deck.losses }}</span></td>
 				  <td><span>{{ deck.total }}</span></td>
-				  <td><span class="label label-{{ deck.label }}">
-					{{ "{0:0.1f}".format(deck.winrate) }}%
-				  </span></td>
+				  <td>
+                    {% if deck.total > 0 %}
+                    <span class="label label-{{ deck.label }}">
+					  {{ "{0:0.1f}".format(deck.winrate) }}%
+				    </span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-minus"></span>
+                    {% endif %}
+                  </td>
 				</tr>
 				{% endfor %}
 			  </tbody>
@@ -238,18 +244,30 @@
 				  <td>{{ standard_season_stats.wins }}</td>
 				  <td>{{ standard_season_stats.losses }}</td>
 				  <td>{{ standard_season_stats.total }}</td>
-				  <td><span class="label label-{{ standard_season_stats.label }}">
-					{{ "{0:0.1f}".format(standard_season_stats.winrate) }}%
-				  </span></td>
+				  <td>
+                    {% if standard_season_stats.total > 0 %}
+                    <span class="label label-{{ standard_season_stats.label }}">
+					  {{ "{0:0.1f}".format(standard_season_stat.winrate) }}%
+				    </span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-minus"></span>
+                    {% endif %}
+                  </td>
 				</tr>
 				<tr>
 				  <td class="stats-range">Wild</td>
 				  <td>{{ wild_season_stats.wins }}</td>
 				  <td>{{ wild_season_stats.losses }}</td>
 				  <td>{{ wild_season_stats.total }}</td>
-				  <td><span class="label label-{{ wild_season_stats.label }}">
-					{{ "{0:0.1f}".format(wild_season_stats.winrate) }}%
-				  </span></td>
+				  <td>
+                    {% if wild_season_stats.total > 0 %}
+                    <span class="label label-{{ wild_season_stats.label }}">
+					  {{ "{0:0.1f}".format(wild_season_stat.winrate) }}%
+				    </span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-minus"></span>
+                    {% endif %}
+                  </td>
 				</tr>
 			  </tbody>
 			</table>
@@ -302,36 +320,60 @@
 				  <td>{{ overall_stats[0].wins }}</td>
 				  <td>{{ overall_stats[0].losses }}</td>
 				  <td>{{ overall_stats[0].total }}</td>
-				  <td><span class="label label-{{ overall_stats[0].label }}">
-					{{ "{0:0.1f}".format(overall_stats[0].winrate) }}%
-				  </span></td>
+				  <td>
+                    {% if overall_stats[0].total > 0 %}
+                    <span class="label label-{{ overall_stats[0].label }}">
+					  {{ "{0:0.1f}".format(overall_stats[0].winrate) }}%
+				    </span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-minus"></span>
+                    {% endif %}
+                  </td>
 				</tr>
 				<tr>
 				  <td class="stats-range">Week</td>
 				  <td>{{ overall_stats[1].wins }}</td>
 				  <td>{{ overall_stats[1].losses }}</td>
 				  <td>{{ overall_stats[1].total }}</td>
-				  <td><span class="label label-{{ overall_stats[1].label }}">
-					{{ "{0:0.1f}".format(overall_stats[1].winrate) }}%
-				  </span></td>
+				  <td>
+                    {% if overall_stats[1].total > 0 %}
+                    <span class="label label-{{ overall_stats[1].label }}">
+					  {{ "{0:0.1f}".format(overall_stats[1].winrate) }}%
+				    </span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-minus"></span>
+                    {% endif %}
+                  </td>
 				</tr>
 				<tr>
 				  <td class="stats-range">Month</td>
 				  <td>{{ overall_stats[2].wins }}</td>
 				  <td>{{ overall_stats[2].losses }}</td>
 				  <td>{{ overall_stats[2].total }}</td>
-				  <td><span class="label label-{{ overall_stats[2].label }}">
-					{{ "{0:0.1f}".format(overall_stats[2].winrate) }}%
-				  </span></td>
+				  <td>
+                    {% if overall_stats[2].total > 0 %}
+                    <span class="label label-{{ overall_stats[2].label }}">
+					  {{ "{0:0.1f}".format(overall_stats[2].winrate) }}%
+				    </span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-minus"></span>
+                    {% endif %}
+                  </td>
 				</tr>
 				<tr>
 				  <td class="stats-range">All</td>
 				  <td>{{ overall_stats[3].wins }}</td>
 				  <td>{{ overall_stats[3].losses }}</td>
 				  <td>{{ overall_stats[3].total }}</td>
-				  <td><span class="label label-{{ overall_stats[3].label }}">
-					{{ "{0:0.1f}".format(overall_stats[3].winrate) }}%
-				  </span></td>
+				  <td>
+                    {% if overall_stats[3].total > 0 %}
+                    <span class="label label-{{ overall_stats[3].label }}">
+					  {{ "{0:0.1f}".format(overall_stats[3].winrate) }}%
+				    </span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-minus"></span>
+                    {% endif %}
+                  </td>
 				</tr>
 			  </tbody>
 			</table>
@@ -385,9 +427,15 @@
 					  <td><span>{{ opponent.wins }}</span></td>
 					  <td><span>{{ opponent.losses }}</span></td>
 					  <td><span>{{ opponent.total}}</span></td>
-					  <td><span class="label label-{{ opponent.label }}">
-						{{ "{0:0.1f}".format(opponent.winrate) }}%
-					  </span></td>
+                      <td>
+                        {% if opponent.total > 0 %}
+                        <span class="label label-{{ opponent.label }}">
+					      {{ "{0:0.1f}".format(opponent.winrate) }}%
+				        </span>
+                        {% else %}
+                        <span class="glyphicon glyphicon-minus"></span>
+                        {% endif %}
+                      </td>
 					</tr>
 					{% endfor %}
 				  </tbody>
@@ -427,9 +475,15 @@
 					  <td><span>{{ opponent.wins }}</span></td>
 					  <td><span>{{ opponent.losses }}</span></td>
 					  <td><span>{{ opponent.total}}</span></td>
-					  <td><span class="label label-{{ opponent.label }}">
-						{{ "{0:0.1f}".format(opponent.winrate) }}%
-					  </span></td>
+					  <td>
+                        {% if opponent.total > 0 %}
+                        <span class="label label-{{ opponent.label }}">
+					      {{ "{0:0.1f}".format(opponent.winrate) }}%
+				        </span>
+                        {% else %}
+                        <span class="glyphicon glyphicon-minus"></span>
+                        {% endif %}
+                      </td>
 					</tr>
 					{% endfor %}
 				  </tbody>
@@ -469,9 +523,15 @@
 					  <td><span>{{ opponent.wins }}</span></td>
 					  <td><span>{{ opponent.losses }}</span></td>
 					  <td><span>{{ opponent.total}}</span></td>
-					  <td><span class="label label-{{ opponent.label }}">
-						{{ "{0:0.1f}".format(opponent.winrate) }}%
-					  </span></td>
+					  <td>
+                        {% if opponent.total > 0 %}
+                        <span class="label label-{{ opponent.label }}">
+					      {{ "{0:0.1f}".format(opponent.winrate) }}%
+				        </span>
+                        {% else %}
+                        <span class="glyphicon glyphicon-minus"></span>
+                        {% endif %}
+                      </td>
 					</tr>
 					{% endfor %}
 				  </tbody>
