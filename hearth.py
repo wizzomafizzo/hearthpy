@@ -95,13 +95,13 @@ def import_old_matches(filename):
 
 
 def update_cards():
-    if os.path.isfile("data/cards.json"):
-        print("Moving old cards dump")
-        now = datetime.datetime.now()
-        timestamp = int(now.timestamp())
-        os.rename("data/cards.json", "data/cards-{}.json".format(timestamp))
-    print("Downloading cards json dump")
-    urllib.request.urlretrieve(config.cards_json_url, "data/cards.json")
+    # if os.path.isfile("data/cards.json"):
+    #     print("Moving old cards dump")
+    #     now = datetime.datetime.now()
+    #     timestamp = int(now.timestamp())
+    #     os.rename("data/cards.json", "data/cards-{}.json".format(timestamp))
+    # print("Downloading cards json dump")
+    # urllib.request.urlretrieve(config.cards_json_url, "data/cards.json")
     print("Importing cards")
     c = database.Cards(database.db)
     imported = c.import_cards("data/cards.json")

@@ -11,10 +11,11 @@ min_games_deck = 20
 
 deck_template = "^(S|W)(Dd|Hr|Me|Pn|Pt|Re|Sn|Wk|Wr) .+ \d+\.\d+$"
 card_image_url = "http://wow.zamimg.com/images/hearthstone/cards/enus/original/{}.png"
-cards_json_url = "https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
+# cards_json_url = "https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"
+cards_json_url = "https://api.hearthstonejson.com/v1/17720/enUS/cards.collectible.json"
 
-card_packs = ["EXPERT1", "GVG", "TGT", "OG"]
-standard_sets = ["BRM", "CORE", "EXPERT1", "LOE", "OG", "TGT"]
+card_packs = ["EXPERT1", "GVG", "TGT", "OG", "GANGS"]
+standard_sets = ["BRM", "CORE", "EXPERT1", "KARA", "GANGS", "LOE", "OG", "TGT"]
 craft_cost = {
     "COMMON": 40,
     "RARE": 100,
