@@ -320,7 +320,6 @@ class Matches():
         c = self.db.cursor()
         total = 0
         for match in matches:
-
             match["date"] = datetime.strptime(match["date"][0:19],
                                               "%Y-%m-%d %H:%M:%S")
             c.execute(q, (match["date"], match["mode"], match["deck"],
