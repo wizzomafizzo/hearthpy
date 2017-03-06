@@ -10,7 +10,7 @@ winrate_tiers = [50, 55]  # %
 min_games_deck = 20
 
 deck_template = "^(S|W)(Dd|Hr|Me|Pn|Pt|Re|Sn|Wk|Wr) .+ \d+\.\d+$"
-card_image_url = "http://wow.zamimg.com/images/hearthstone/cards/enus/original/{}.png"
+card_image_url = "http://media.services.zam.com/v1/media/byName/hs/cards/enus/{}.png"
 cards_json_url = "https://api.hearthstonejson.com/v1/17720/enUS/cards.collectible.json"
 cards_json_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
 
