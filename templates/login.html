@@ -6,12 +6,12 @@
 	  <div class="col-md-12">
 		{% if "username" in session %}
 		<div class="alert alert-info login-alert" role="alert">
-		  You are logged in as <strong>{{ session.username }}</strong>
+		  You are logged in as <strong>{{ session.username }}</strong>.
 		</div>
 		{% else %}
 		{% if login_failed %}
 		<div class="alert alert-danger login-alert" role="alert">
-		  Username or password was incorrect
+		  Username or password was incorrect.
 		</div>
 		{% endif %}
 		<div class="well login-form">
