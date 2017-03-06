@@ -125,24 +125,20 @@ def is_int(value):
         return False
 
 
-def update_query_offset(query, offset):
+def update_query_string(query, key, value):
     old_args = urllib.parse.parse_qsl(query)
-
     if old_args is None:
-        return urllib.parse.urlencode([("offset", offset)])
-
+        return urllib.parse.urlencode([(key, value)])
     new_args = []
     updated = False
     for x in old_args:
-        if x[0] == "offset":
-            new_args.append(("offset", offset))
+        if x[0] == key:
+            new_args.append((key, value))
             updated = True
         else:
             new_args.append(x)
-
     if not updated:
-        new_args.append(("offset", offset))
-
+        new_args.append((key, value))
     return urllib.parse.urlencode(new_args)
 
 
@@ -296,6 +292,7 @@ def matches():
     outcome = request.args.get("outcome", "")
     offset = request.args.get("offset", "")
     card_format = request.args.get("format", "")
+    sort = request.args.get("sort", "")
 
     opponent = request.args.getlist("opponent")
     mode = request.args.getlist("mode")
@@ -342,6 +339,9 @@ def matches():
     elif card_format == "wild":
         search["card_format"] = "Wild"
 
+    if sort != "":
+        search["sort"] = sort
+
     matches = [mode_icon(hero_icon(x)) for x in
                format_matches(m.search(**search))]
 
@@ -365,12 +365,26 @@ def matches():
         next_offset = matches_found - config.match_limit
 
     query = request.query_string.decode()
-    prev_url = update_query_offset(query, prev_offset)
-    next_url = update_query_offset(query, next_offset)
+    prev_url = update_query_string(query, "offset", prev_offset)
+    next_url = update_query_string(query, "offset", next_offset)
 
     total_ratio = winrate(total, matches_found)
     stats = m.stats(matches)
     opponent_stats = m.opponent_stats(matches)
+
+    active_sort = {}
+    for col in m.columns():
+        active_sort[col] = {}
+        if sort[1:] == col:
+            if sort[0] == "d":
+                active_sort[col]["order"] = "down"
+                active_sort[col]["url"] = update_query_string(query, "sort", "a"+col)
+            else: # a
+                active_sort[col]["order"] = "up"
+                active_sort[col]["url"] = update_query_string(query, "sort", "d"+col)
+        else:
+            active_sort[col]["order"] = None
+            active_sort[col]["url"] = update_query_string(query, "sort", "d"+col)
 
     args = {
         "matches": matches[offset:offset + config.match_limit],
@@ -397,7 +411,8 @@ def matches():
         "total_pages": int(matches_found / config.match_limit) + 1,
         "prev_pages_left": offset > 0,
         "next_pages_left": offset + config.match_limit < matches_found,
-        "winrate": stats["winrate"]
+        "winrate": stats["winrate"],
+        "active_sort": active_sort
     }
 
     return render_template("matches.html", **args)
@@ -490,8 +505,8 @@ def cards():
         next_offset = total - config.card_limit
 
     query = request.query_string.decode()
-    prev_url = update_query_offset(query, prev_offset)
-    next_url = update_query_offset(query, next_offset)
+    prev_url = update_query_string(query, "offset", prev_offset)
+    next_url = update_query_string(query, "offset", next_offset)
 
     args = {
         "cards": [format_card(x) for x in

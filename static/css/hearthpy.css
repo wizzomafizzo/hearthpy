@@ -210,6 +210,10 @@ table td {
 	top: 3px;
 }
 
+a.matches-sort {
+    color: #333;
+}
+
 .stats-range {
 	text-align: left;
 	font-weight: bold;

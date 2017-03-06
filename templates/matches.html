@@ -110,18 +110,24 @@
 		  <thead>
 			<tr>
 			  <th></th>
-			  <th><span class="glyphicon glyphicon-calendar" title="Date"
-						data-toggle="tooltip"></span></th>
-			  <th><span class="glyphicon glyphicon-star" title="Mode"
-						data-toggle="tooltip"></span></th>
-			  <th><span class="glyphicon glyphicon-align-justify" title="Deck"
-						data-toggle="tooltip"></span></th>
-			  <th><span class="glyphicon glyphicon-user" title="Against"
-						data-toggle="tooltip"></span></th>
-			  <th><span class="glyphicon glyphicon-pencil" title="Notes"
-						data-toggle="tooltip"></span></th>
-			  <th><span class="glyphicon glyphicon-flag" title="Outcome"
-						data-toggle="tooltip"></span></th>
+			  <th>
+                <a class="matches-sort" href="matches?{{ active_sort.date.url }}"><span class="glyphicon glyphicon-calendar" title="Date" data-toggle="tooltip"></span>{% if active_sort.date.order %}<span class="glyphicon glyphicon-arrow-{{ active_sort.date.order }}"></span>{% endif %}</a>
+              </th>
+			  <th>
+                <a class="matches-sort" href="matches?{{ active_sort.mode.url }}"><span class="glyphicon glyphicon-star" title="Mode" data-toggle="tooltip"></span>{% if active_sort.mode.order %}<span class="glyphicon glyphicon-arrow-{{ active_sort.mode.order }}"></span>{% endif %}</a>
+              </th>
+			  <th>
+                <a class="matches-sort" href="matches?{{ active_sort.deck.url }}"><span class="glyphicon glyphicon-align-justify" title="Deck" data-toggle="tooltip"></span>{% if active_sort.deck.order %}<span class="glyphicon glyphicon-arrow-{{ active_sort.deck.order }}"></span>{% endif %}</a>
+              </th>
+			  <th>
+                <a class="matches-sort" href="matches?{{ active_sort.opponent.url }}"><span class="glyphicon glyphicon-user" title="Against" data-toggle="tooltip"></span>{% if active_sort.opponent.order %}<span class="glyphicon glyphicon-arrow-{{ active_sort.opponent.order }}"></span>{% endif %}</a>
+              </th>
+			  <th>
+                <a class="matches-sort" href="matches?{{ active_sort.notes.url }}"><span class="glyphicon glyphicon-pencil" title="Notes" data-toggle="tooltip"></span>{% if active_sort.notes.order %}<span class="glyphicon glyphicon-arrow-{{ active_sort.notes.order }}"></span>{% endif %}</a>
+              </th>
+			  <th>
+                <a class="matches-sort" href="matches?{{ active_sort.outcome.url }}"><span class="glyphicon glyphicon-flag" title="Outcome" data-toggle="tooltip"></span>{% if active_sort.outcome.order %}<span class="glyphicon glyphicon-arrow-{{ active_sort.outcome.order }}"></span>{% endif %}</a>
+              </th>
 			</tr>
 		  </thead>
 		  <tbody>
@@ -177,7 +183,7 @@
 {% block script %}
 <script>
  function fd(name) {
-	 $("#deck-input").val(name);
+	 $("#deck-input").val("="+name);
  }
  $(document).ready(function(){
 	 $('[data-toggle="tooltip"]').tooltip();

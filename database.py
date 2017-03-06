@@ -250,6 +250,11 @@ class Matches():
         c.execute(q)
         self.db.commit()
 
+    def columns(self):
+        c = self.db.cursor()
+        c.execute("pragma table_info(matches)")
+        return [x[1] for x in c.fetchall()]
+
     def add(self, mode, deck, opponent, notes, outcome):
         assert type(mode) is str
         assert mode in config.modes
@@ -330,7 +335,7 @@ class Matches():
 
     def search(self, from_date=None, to_date=None, mode=None,
                deck=None, opponent=None, notes=None, outcome=None,
-               card_format=None, limit=None):
+               card_format=None, limit=None, sort="ddate"):
         q = "select rowid,* from matches where date between ? and ? "
 
         # from_date
@@ -388,7 +393,17 @@ class Matches():
             else:
                 q += "and outcome = 0 "
 
-        q += "order by date desc"
+        # sort
+        sort_column = sort[1:]
+        q += "order by "
+        if sort_column in self.columns():
+            q += sort_column
+        else:
+            q += "date"
+        if sort[0] == "d":
+            q += " desc"
+        else: # a
+            q += " asc"
 
         if limit is not None:
             q += " limit ?"
