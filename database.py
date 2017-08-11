@@ -762,8 +762,11 @@ class Cards():
         self.db.commit()
         self.init_db()
         for x in cards:
+            # TODO: move to own function?
             valid = (x["id"] not in imported and
-                     x["type"] != "HERO")
+                     x["set"] != "HERO_SKINS" and
+                     not (x["set"] == "CORE" and
+                          x["type"] == "HERO"))
             if valid:
                 self.add(x)
                 try:
